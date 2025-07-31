@@ -26,26 +26,40 @@ body, html {
     height: 100vh;
     pointer-events: none;
 }
-.dot-number {
-    width: 180px;
-    height: 180px;
-    border-radius: 50%;
-    background: radial-gradient(circle, #fffad7 65%, #ff75a0 100%);
-    box-shadow: 0 0 70px 35px #ff75a088, 0 0 120px #fff4;
-    display: flex;
+.dot-matrix-number {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    grid-template-rows: repeat(7, 1fr);
+    gap: 0.5em;
+    width: min(30vw, 320px);
+    height: min(42vw, 450px);
+    justify-items: center;
     align-items: center;
-    justify-content: center;
-    font-size: 7em;
-    font-weight: bold;
-    color: #111;
-    text-shadow: 0 2px 24px #ff8fa0cc, 0 0 24px #fff8;
+    animation: pop 0.7s cubic-bezier(.34,1.56,.64,1) 1;
+}
+@media (max-width: 600px) {
+    .dot-matrix-number {
+        width: min(60vw, 200px);
+        height: min(84vw, 300px);
+        gap: 0.2em;
+    }
+}
+.dot-cell {
+    width: min(5vw, 45px);
+    height: min(5vw, 45px);
+    border-radius: 50%;
+    background: radial-gradient(circle, #fffbee 60%, #ff75a0 100%);
+    box-shadow: 0 0 24px #ff75a0aa, 0 0 18px #fffad777;
+    opacity: 0.18;
+    transition: opacity 0.3s, background 0.2s;
+}
+.dot-cell.on {
     opacity: 1;
-    transition: opacity 0.5s;
-    animation: pop 0.6s cubic-bezier(.34,1.56,.64,1) 1;
+    background: radial-gradient(circle, #fffad7 70%, #ff75a0 100%);
 }
 @keyframes pop {
     0% { transform: scale(0.2); opacity:0; }
-    60% { transform: scale(1.15); opacity:1; }
+    50% { transform: scale(1.12); opacity:1; }
     100% { transform: scale(1); opacity:1; }
 }
 .birthday-message {
