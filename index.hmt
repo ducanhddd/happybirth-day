@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chúc Mừng Sinh Nhật 3D!</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="bg-3d"></div>
+    <div id="countdown" class="countdown-dot"></div>
+    <div id="birthday-message" class="birthday-message" style="display:none;">
+        🎉 Chúc mừng sinh nhật 🎉
+    </div>
+    <div class="birthday-container" style="display:none;">
+        <p>Chúc bạn ngày sinh nhật vũ trụ, lung linh và hạnh phúc!</p>
+        <div class="cake">
+            <div class="plate"></div>
+            <div class="cake-body"></div>
+            <div class="icing"></div>
+            <div class="candle"></div>
+            <div class="flame"></div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
