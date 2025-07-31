@@ -2,28 +2,19 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
+    <title>Đếm ngược dot matrix đẹp</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chúc Mừng Sinh Nhật 3D!</title>
     <style>
-    body, html {
-        margin: 0;
-        padding: 0;
-        height: 100%;
-        overflow: hidden;
+    body {
+        background: #181828;
+        margin: 0; padding: 0;
+        min-height: 100vh;
         font-family: 'Segoe UI', Arial, sans-serif;
-        background: #000;
-    }
-    #bg-3d {
-        position: fixed;
-        width: 100vw;
-        height: 100vh;
-        left: 0; top: 0;
-        z-index: 0;
+        user-select: none;
     }
     .countdown-dot {
         position: fixed;
-        left: 50%;
-        top: 50%;
+        left: 50%; top: 50%;
         transform: translate(-50%, -50%);
         z-index: 3;
         display: flex;
@@ -32,299 +23,127 @@
         width: 100vw;
         height: 100vh;
         pointer-events: none;
+        background: none;
     }
     .dot-matrix-number {
         display: grid;
         grid-template-columns: repeat(5, 1fr);
         grid-template-rows: repeat(7, 1fr);
-        gap: 0.5em;
-        width: min(30vw, 320px);
-        height: min(42vw, 450px);
+        gap: 0.82em;
+        width: min(44vw, 370px);
+        height: min(62vw, 520px);
         justify-items: center;
         align-items: center;
         animation: pop 0.7s cubic-bezier(.34,1.56,.64,1) 1;
+        background: none;
+        transition: width 0.3s, height 0.3s;
     }
     @media (max-width: 600px) {
         .dot-matrix-number {
-            width: min(60vw, 200px);
-            height: min(84vw, 300px);
-            gap: 0.2em;
+            width: min(80vw, 220px);
+            height: min(112vw, 320px);
+            gap: 0.28em;
         }
     }
     .dot-cell {
-        width: min(5vw, 45px);
-        height: min(5vw, 45px);
+        width: min(7vw, 56px);
+        height: min(7vw, 56px);
         border-radius: 50%;
-        background: radial-gradient(circle, #fffbee 60%, #ff75a0 100%);
-        box-shadow: 0 0 24px #ff75a0aa, 0 0 18px #fffad777;
-        opacity: 0.18;
-        transition: opacity 0.3s, background 0.2s;
+        background: radial-gradient(circle at 60% 30%, #fff 85%, #ffd6f9 90%, #ff4890 100%);
+        box-shadow:
+            0 0 0 3px #fff4 inset,
+            0 2px 10px 0 #ff489099,
+            0 0 36px #fff,
+            0 0 24px #ff489066;
+        opacity: 0.12;
+        transition: opacity 0.3s, background 0.15s;
+        filter: brightness(0.93) drop-shadow(0 0 12px #ff4890aa);
     }
     .dot-cell.on {
         opacity: 1;
-        background: radial-gradient(circle, #fffad7 70%, #ff75a0 100%);
+        background: radial-gradient(circle at 60% 30%, #fff 88%, #ffd6f9 97%, #ff4890 100%);
+        box-shadow:
+            0 0 0 3px #fff7 inset,
+            0 4px 24px 0 #ff4890bb,
+            0 0 56px #fff,
+            0 0 32px #ff4890bb;
+        filter: brightness(1.1) drop-shadow(0 0 30px #ff4890aa);
+        animation: dotPop 0.5s cubic-bezier(.35,1.6,.65,1) 1;
     }
     @keyframes pop {
         0% { transform: scale(0.2); opacity:0; }
-        50% { transform: scale(1.12); opacity:1; }
+        50% { transform: scale(1.13); opacity:1; }
         100% { transform: scale(1); opacity:1; }
     }
-    .birthday-message {
-        position: fixed;
-        left: 50%;
-        top: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 4;
-        font-size: 3em;
-        color: #ffe6fa;
-        font-weight: bold;
-        text-align: center;
-        white-space: pre-line;
-        text-shadow: 0 2px 16px #ff75a0, 0 0 50px #fff, 0 0 32px #ff75a0bb;
-        letter-spacing: 2px;
-        animation: fadeInPop 1s cubic-bezier(.34,1.56,.64,1) 1;
-        pointer-events: none;
+    @keyframes dotPop {
+        0% { transform: scale(0.3);}
+        60% { transform: scale(1.12);}
+        100% { transform: scale(1);}
     }
-    @keyframes fadeInPop {
-        0% { opacity: 0; transform: scale(0.5) translate(-50%, -50%);}
-        70% { opacity: 1; transform: scale(1.15) translate(-50%, -50%);}
-        100% { opacity: 1; transform: scale(1) translate(-50%, -50%);}
-    }
-    .birthday-container {
-        position: absolute;
-        z-index: 2;
-        top: 50%; left: 50%;
-        transform: translate(-50%, -50%);
-        text-align: center;
+    .done-message {
+        font-size: 2.5em;
         color: #fff;
-        text-shadow: 0 0 20px #fff4;
-        pointer-events: none;
-    }
-    .birthday-container p {
-        font-size: 1.3em;
-        color: #fffad7;
-        margin-bottom: 2em;
-        text-shadow: 0 0 8px #fff2;
-    }
-    /* Simple Cake */
-    .cake {
-        display: inline-block;
-        position: relative;
-        width: 120px;
-        height: 120px;
-    }
-    .plate {
-        position: absolute;
-        bottom: 0;
-        left: 15px;
-        width: 90px;
-        height: 18px;
-        background: #eee;
-        border-radius: 50%;
-        opacity: 0.15;
-        z-index: 1;
-    }
-    .cake-body {
-        position: absolute;
-        bottom: 18px;
-        left: 20px;
-        width: 80px;
-        height: 40px;
-        background: #ffb347;
-        border-radius: 0 0 40px 40px / 0 0 20px 20px;
-        z-index: 2;
-        box-shadow: 0 2px 8px #0009;
-    }
-    .icing {
-        position: absolute;
-        bottom: 58px;
-        left: 20px;
-        width: 80px;
-        height: 18px;
-        background: #fff0f5;
-        border-radius: 40px 40px 9px 9px / 20px 20px 6px 6px;
-        z-index: 3;
-        box-shadow: 0 1px 4px #0002 inset;
-    }
-    .candle {
-        position: absolute;
-        bottom: 76px;
-        left: 54px;
-        width: 12px;
-        height: 22px;
-        background: #fff;
-        border-radius: 6px;
-        border: 2px solid #ff69b4;
-        z-index: 4;
-    }
-    .flame {
-        position: absolute;
-        bottom: 96px;
-        left: 57px;
-        width: 10px;
-        height: 15px;
-        background: radial-gradient(ellipse at center, #ffecb3 60%, #ff9800 100%);
-        border-radius: 50% 50% 48% 52% / 55% 45% 50% 50%;
-        z-index: 5;
-        animation: flicker 1s infinite alternate;
-    }
-    @keyframes flicker {
-        0% { opacity: 1; transform: scaleY(1) rotate(-2deg);}
-        100% { opacity: 0.85; transform: scaleY(1.1) rotate(2deg);}
+        text-align: center;
+        filter: drop-shadow(0 2px 18px #ff4890cc);
+        margin: 0;
     }
     </style>
 </head>
 <body>
-    <div id="bg-3d"></div>
-    <div id="countdown" class="countdown-dot"></div>
-    <div id="birthday-message" class="birthday-message" style="display:none;">
-        🎉 Chúc mừng sinh nhật 🎉
-    </div>
-    <div class="birthday-container" style="display:none;">
-        <p>Chúc bạn ngày sinh nhật vũ trụ, lung linh và hạnh phúc!</p>
-        <div class="cake">
-            <div class="plate"></div>
-            <div class="cake-body"></div>
-            <div class="icing"></div>
-            <div class="candle"></div>
-            <div class="flame"></div>
-        </div>
-    </div>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
-    <script>
-    // Vũ trụ 3D với Three.js
-    let scene = new THREE.Scene();
-    let camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 2000);
-    let renderer = new THREE.WebGLRenderer({ antialias: true });
-    renderer.setClearColor(0x000010, 1);
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    document.getElementById('bg-3d').appendChild(renderer.domElement);
-
-    // Sao 3D
-    let starGeo = new THREE.BufferGeometry();
-    let starCount = 1500;
-    let positions = new Float32Array(starCount * 3);
-    for (let i = 0; i < starCount; i++) {
-        let x = (Math.random() - 0.5) * 2000;
-        let y = (Math.random() - 0.5) * 2000;
-        let z = -Math.random() * 1800;
-        positions[i*3] = x;
-        positions[i*3+1] = y;
-        positions[i*3+2] = z;
-    }
-    starGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-    let starMat = new THREE.PointsMaterial({color: 0xffffff, size: 1.3});
-    let starField = new THREE.Points(starGeo, starMat);
-    scene.add(starField);
-
-    camera.position.z = 5;
-    function animate() {
-        requestAnimationFrame(animate);
-        starField.rotation.y += 0.0008;
-        starField.rotation.x += 0.0004;
-        let pos = starGeo.getAttribute('position');
-        for (let i = 0; i < starCount; i++) {
-            let z = pos.getZ(i);
-            z += 1.1;
-            if (z > 100) z = -1800 + Math.random() * 40;
-            pos.setZ(i, z);
+<div id="countdown" class="countdown-dot"></div>
+<script>
+const DOT_NUMBERS = {
+    3: [
+        [1,1,1,1,1],
+        [0,0,0,0,1],
+        [0,0,0,1,1],
+        [0,0,1,1,1],
+        [0,0,0,0,1],
+        [0,0,0,0,1],
+        [1,1,1,1,1]
+    ],
+    2: [
+        [1,1,1,1,1],
+        [0,0,0,0,1],
+        [0,0,0,0,1],
+        [1,1,1,1,1],
+        [1,0,0,0,0],
+        [1,0,0,0,0],
+        [1,1,1,1,1]
+    ],
+    1: [
+        [0,0,1,0,0],
+        [0,1,1,0,0],
+        [1,0,1,0,0],
+        [0,0,1,0,0],
+        [0,0,1,0,0],
+        [0,0,1,0,0],
+        [1,1,1,1,1]
+    ]
+};
+const countdownElem = document.getElementById('countdown');
+let countdownNumbers = [3,2,1], idx = 0;
+function showDotMatrixNumber(num) {
+    countdownElem.innerHTML = '';
+    let c = document.createElement('div'); c.className = 'dot-matrix-number';
+    let m = DOT_NUMBERS[num];
+    for(let r=0;r<m.length;r++)
+        for(let col=0;col<m[r].length;col++){
+            let dot = document.createElement('div');
+            dot.className = 'dot-cell'+(m[r][col]?' on':'');
+            c.appendChild(dot);
         }
-        pos.needsUpdate = true;
-        renderer.render(scene, camera);
+    countdownElem.appendChild(c);
+    setTimeout(()=>{c.style.opacity=0},900);
+}
+function startCountdown() {
+    if(idx<3){ showDotMatrixNumber(countdownNumbers[idx]);
+        setTimeout(()=>{idx++;startCountdown();},1200);
+    } else {
+        countdownElem.innerHTML = '<div class="done-message">🎉 Chúc mừng sinh nhật! 🎉</div>';
     }
-    animate();
-    window.addEventListener('resize', () => {
-        camera.aspect = window.innerWidth/window.innerHeight;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    // Dot matrix số đếm ngược
-    const DOT_NUMBERS = {
-        3: [
-            [1,1,1,1,1],
-            [0,0,0,0,1],
-            [0,0,0,1,1],
-            [0,0,1,1,1],
-            [0,0,0,0,1],
-            [0,0,0,0,1],
-            [1,1,1,1,1]
-        ],
-        2: [
-            [1,1,1,1,1],
-            [0,0,0,0,1],
-            [0,0,0,0,1],
-            [1,1,1,1,1],
-            [1,0,0,0,0],
-            [1,0,0,0,0],
-            [1,1,1,1,1]
-        ],
-        1: [
-            [0,0,1,0,0],
-            [0,1,1,0,0],
-            [1,0,1,0,0],
-            [0,0,1,0,0],
-            [0,0,1,0,0],
-            [0,0,1,0,0],
-            [1,1,1,1,1]
-        ]
-    };
-
-    const countdownElem = document.getElementById('countdown');
-    const birthdayMsg = document.getElementById('birthday-message');
-    const birthdayContainer = document.querySelector('.birthday-container');
-    let countdownNumbers = [3,2,1];
-    let idx = 0;
-
-    function showDotMatrixNumber(num) {
-        countdownElem.innerHTML = '';
-        let container = document.createElement('div');
-        container.className = 'dot-matrix-number';
-        let matrix = DOT_NUMBERS[num];
-        for(let row=0; row<matrix.length; row++) {
-            for(let col=0; col<matrix[row].length; col++) {
-                let dot = document.createElement('div');
-                dot.className = 'dot-cell' + (matrix[row][col] ? ' on' : '');
-                container.appendChild(dot);
-            }
-        }
-        countdownElem.appendChild(container);
-        setTimeout(() => {
-            container.style.opacity = 0;
-        }, 800);
-    }
-
-    function startCountdown() {
-        if(idx < countdownNumbers.length) {
-            showDotMatrixNumber(countdownNumbers[idx]);
-            setTimeout(() => {
-                idx++;
-                startCountdown();
-            }, 1100);
-        } else {
-            countdownElem.style.display = 'none';
-            showBirthdayMessage();
-        }
-    }
-
-    function showBirthdayMessage() {
-        birthdayMsg.style.display = '';
-        birthdayMsg.style.opacity = 1;
-        setTimeout(() => {
-            birthdayMsg.style.opacity = 0;
-            setTimeout(() => {
-                birthdayMsg.style.display = 'none';
-                birthdayContainer.style.display = '';
-            }, 700);
-        }, 1600);
-    }
-
-    window.addEventListener('DOMContentLoaded', () => {
-        countdownElem.style.display = '';
-        birthdayMsg.style.display = 'none';
-        birthdayContainer.style.display = 'none';
-        startCountdown();
-    });
-    </script>
+}
+window.onload = startCountdown;
+</script>
 </body>
 </html>
