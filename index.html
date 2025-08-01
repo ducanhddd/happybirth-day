@@ -1,149 +1,221 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
-    <meta charset="UTF-8">
-    <title>Đếm ngược dot matrix đẹp</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-    body {
-        background: #181828;
-        margin: 0; padding: 0;
-        min-height: 100vh;
-        font-family: 'Segoe UI', Arial, sans-serif;
-        user-select: none;
-    }
-    .countdown-dot {
-        position: fixed;
-        left: 50%; top: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 3;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 100vw;
-        height: 100vh;
-        pointer-events: none;
-        background: none;
-    }
-    .dot-matrix-number {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(7, 1fr);
-        gap: 0.82em;
-        width: min(44vw, 370px);
-        height: min(62vw, 520px);
-        justify-items: center;
-        align-items: center;
-        animation: pop 0.7s cubic-bezier(.34,1.56,.64,1) 1;
-        background: none;
-        transition: width 0.3s, height 0.3s;
-    }
-    @media (max-width: 600px) {
-        .dot-matrix-number {
-            width: min(80vw, 220px);
-            height: min(112vw, 320px);
-            gap: 0.28em;
-        }
-    }
-    .dot-cell {
-        width: min(7vw, 56px);
-        height: min(7vw, 56px);
-        border-radius: 50%;
-        background: radial-gradient(circle at 60% 30%, #fff 85%, #ffd6f9 90%, #ff4890 100%);
-        box-shadow:
-            0 0 0 3px #fff4 inset,
-            0 2px 10px 0 #ff489099,
-            0 0 36px #fff,
-            0 0 24px #ff489066;
-        opacity: 0.12;
-        transition: opacity 0.3s, background 0.15s;
-        filter: brightness(0.93) drop-shadow(0 0 12px #ff4890aa);
-    }
-    .dot-cell.on {
-        opacity: 1;
-        background: radial-gradient(circle at 60% 30%, #fff 88%, #ffd6f9 97%, #ff4890 100%);
-        box-shadow:
-            0 0 0 3px #fff7 inset,
-            0 4px 24px 0 #ff4890bb,
-            0 0 56px #fff,
-            0 0 32px #ff4890bb;
-        filter: brightness(1.1) drop-shadow(0 0 30px #ff4890aa);
-        animation: dotPop 0.5s cubic-bezier(.35,1.6,.65,1) 1;
-    }
-    @keyframes pop {
-        0% { transform: scale(0.2); opacity:0; }
-        50% { transform: scale(1.13); opacity:1; }
-        100% { transform: scale(1); opacity:1; }
-    }
-    @keyframes dotPop {
-        0% { transform: scale(0.3);}
-        60% { transform: scale(1.12);}
-        100% { transform: scale(1);}
-    }
-    .done-message {
-        font-size: 2.5em;
-        color: #fff;
-        text-align: center;
-        filter: drop-shadow(0 2px 18px #ff4890cc);
-        margin: 0;
-    }
-    </style>
+  <meta charset="UTF-8">
+  <title>Dot Matrix Countdown</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+  body {
+      margin: 0; padding: 0;
+      background: #000;
+      min-height: 100vh;
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+  }
+  .dotmatrix-wrap {
+      position: relative;
+      width: min(80vw, 480px);
+      height: min(80vw, 480px);
+      display: flex; align-items: center; justify-content: center;
+  }
+  .dotmatrix-grid {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      display: grid;
+      grid-template-columns: repeat(24, 1fr);
+      grid-template-rows: repeat(24, 1fr);
+      width: 100%; height: 100%;
+      z-index: 2;
+      pointer-events: none;
+      transition: opacity 0.3s;
+  }
+  .dotmatrix-dot {
+      width: 1.8vw; height: 1.8vw;
+      min-width: 8px; min-height: 8px;
+      max-width: 21px; max-height: 21px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0.13;
+      box-shadow: 0 1px 3px #aaa8;
+      transition: opacity 0.18s, background 0.2s;
+  }
+  .dotmatrix-dot.on {
+      background: #fff;
+      opacity: 1;
+      box-shadow: 0 0 8px #fff, 0 0 16px #fff2;
+      transition: opacity 0.18s, background 0.18s, box-shadow 0.2s;
+  }
+  /* Dot grid mặt phẳng 3D bên dưới */
+  .plane-dot-grid {
+      position: absolute;
+      left: 50%; top: 72%;
+      transform: translate(-50%,0) scaleX(1.11) perspective(400px) rotateX(62deg);
+      display: grid;
+      grid-template-columns: repeat(32, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      width: 75vw;
+      max-width: 900px;
+      height: 13vw;
+      max-height: 150px;
+      z-index: 1;
+      pointer-events: none;
+      opacity: 0.45;
+  }
+  .plane-dot {
+      width: 0.48vw; height: 0.48vw;
+      min-width: 2.4px; min-height: 2.4px;
+      max-width: 7px; max-height: 7px;
+      border-radius: 50%;
+      background: #fff;
+      opacity: 0.18;
+      box-shadow: 0 1px 3px #fff4;
+  }
+  @media (max-width: 600px) {
+      .dotmatrix-wrap { width: 98vw; height: 98vw;}
+      .plane-dot-grid { width: 99vw; height: 18vw;}
+  }
+  </style>
 </head>
 <body>
-<div id="countdown" class="countdown-dot"></div>
+<div class="dotmatrix-wrap">
+    <div id="dotmatrix" class="dotmatrix-grid"></div>
+    <div class="plane-dot-grid" id="plane-dot-grid"></div>
+</div>
 <script>
-const DOT_NUMBERS = {
-    3: [
-        [1,1,1,1,1],
-        [0,0,0,0,1],
-        [0,0,0,1,1],
-        [0,0,1,1,1],
-        [0,0,0,0,1],
-        [0,0,0,0,1],
-        [1,1,1,1,1]
-    ],
-    2: [
-        [1,1,1,1,1],
-        [0,0,0,0,1],
-        [0,0,0,0,1],
-        [1,1,1,1,1],
-        [1,0,0,0,0],
-        [1,0,0,0,0],
-        [1,1,1,1,1]
-    ],
-    1: [
-        [0,0,1,0,0],
-        [0,1,1,0,0],
-        [1,0,1,0,0],
-        [0,0,1,0,0],
-        [0,0,1,0,0],
-        [0,0,1,0,0],
-        [1,1,1,1,1]
-    ]
+// Bitmap số 3, 2, 1 cho dot matrix 24x24 (tạo bằng generator hoặc chuyển từ ảnh)
+// Để tối ưu, chỉ bật chấm ở vùng giữa (cột 4-20, dòng 4-20)
+const NUM_BITMAP = {
+  3: [
+    "000111111110000000000000",
+    "001111111111100000000000",
+    "011100000011110000000000",
+    "011000000001110000000000",
+    "000000000000111000000000",
+    "000000000000111000000000",
+    "000000000001110000000000",
+    "000000000111100000000000",
+    "000001111111000000000000",
+    "000001111111000000000000",
+    "000000000011100000000000",
+    "000000000001110000000000",
+    "000000000000111000000000",
+    "000000000000111000000000",
+    "011000000001110000000000",
+    "011100000011110000000000",
+    "001111111111100000000000",
+    "000111111110000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000"
+  ],
+  2: [
+    "000011111111000000000000",
+    "000111111111100000000000",
+    "001110000011110000000000",
+    "011100000001110000000000",
+    "011000000001110000000000",
+    "000000000011100000000000",
+    "000000000111100000000000",
+    "000000001111000000000000",
+    "000000011110000000000000",
+    "000000111100000000000000",
+    "000001111000000000000000",
+    "000011110000000000000000",
+    "000111000000000000000000",
+    "001110000000000000000000",
+    "011100000000000000000000",
+    "011000000000000000000000",
+    "011111111111111000000000",
+    "011111111111111000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000"
+  ],
+  1: [
+    "000000111100000000000000",
+    "000001111100000000000000",
+    "000011111100000000000000",
+    "000111111100000000000000",
+    "000111111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "000000111100000000000000",
+    "011111111111110000000000",
+    "011111111111110000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000",
+    "000000000000000000000000"
+  ]
 };
-const countdownElem = document.getElementById('countdown');
-let countdownNumbers = [3,2,1], idx = 0;
-function showDotMatrixNumber(num) {
-    countdownElem.innerHTML = '';
-    let c = document.createElement('div'); c.className = 'dot-matrix-number';
-    let m = DOT_NUMBERS[num];
-    for(let r=0;r<m.length;r++)
-        for(let col=0;col<m[r].length;col++){
-            let dot = document.createElement('div');
-            dot.className = 'dot-cell'+(m[r][col]?' on':'');
-            c.appendChild(dot);
-        }
-    countdownElem.appendChild(c);
-    setTimeout(()=>{c.style.opacity=0},900);
-}
-function startCountdown() {
-    if(idx<3){ showDotMatrixNumber(countdownNumbers[idx]);
-        setTimeout(()=>{idx++;startCountdown();},1200);
-    } else {
-        countdownElem.innerHTML = '<div class="done-message">🎉 Chúc mừng sinh nhật! 🎉</div>';
+const dotN = 24;
+const dotmatrix = document.getElementById('dotmatrix');
+
+// Create dot matrix grid only once!
+const dots = [];
+for(let r=0; r<dotN; r++){
+    for(let c=0; c<dotN; c++){
+        let dot = document.createElement("div");
+        dot.className = "dotmatrix-dot";
+        dotmatrix.appendChild(dot);
+        dots.push(dot);
     }
 }
-window.onload = startCountdown;
+
+function showNumber(n) {
+    const bitmap = NUM_BITMAP[n];
+    for(let r=0; r<dotN; r++){
+        for(let c=0; c<dotN; c++){
+            const idx = r*dotN + c;
+            if(bitmap && bitmap[r][c]==="1"){
+                dots[idx].classList.add('on');
+            } else {
+                dots[idx].classList.remove('on');
+            }
+        }
+    }
+}
+
+// Plane dot grid (mặt phẳng chấm bên dưới)
+const planeGrid = document.getElementById("plane-dot-grid");
+for(let r=0; r<8; r++)
+    for(let c=0; c<32; c++){
+        let dot = document.createElement("div");
+        dot.className = "plane-dot";
+        planeGrid.appendChild(dot);
+    }
+
+// Đếm ngược
+const countdowns = [3,2,1];
+let idx = 0;
+function nextCount(){
+    if(idx < countdowns.length){
+        showNumber(countdowns[idx]);
+        idx++;
+        setTimeout(nextCount, 1100);
+    } else {
+        // Hết đếm ngược, hiện DONE hoặc hiệu ứng khác
+        dotmatrix.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><span style="font-size:2.5em;color:#fff;text-shadow:0 0 32px #fff;">🎉 Chúc mừng sinh nhật! 🎉</span></div>';
+    }
+}
+window.onload = nextCount;
 </script>
 </body>
 </html>
