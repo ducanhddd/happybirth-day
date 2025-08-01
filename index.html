@@ -43,7 +43,6 @@
     import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.module.js';
     import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/controls/OrbitControls.js';
     import { FontLoader } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/loaders/FontLoader.js';
-    import { TextGeometry } from 'https://cdn.jsdelivr.net/npm/three@0.152.2/examples/jsm/geometries/TextGeometry.js';
 
     let scene, camera, renderer, controls;
     let pointsGroup;
@@ -97,6 +96,13 @@
       }
     }
 
+    function addLights() {
+      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+      let dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
+      dirLight.position.set(0, 1, 1);
+      scene.add(dirLight);
+    }
+
     function init() {
       scene = new THREE.Scene();
       camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 2000);
@@ -114,6 +120,7 @@
       controls.autoRotateSpeed = 0.2;
 
       createUniverseBackground();
+      addLights();
 
       // Load font
       const fontLoader = new FontLoader();
@@ -133,12 +140,9 @@
     }
 
     function getPointsFromText(text, font, size = 40, density = 0.65) {
-      // Create points from text geometry
       let shapes = font.generateShapes(text, size);
       let geometry = new THREE.ShapeGeometry(shapes);
       geometry.center();
-
-      // Get points along the shapes, reduce to a reasonable number
       let points = [];
       shapes.forEach(shape => {
         let pts = shape.getPoints(50);
@@ -161,7 +165,6 @@
         });
         let mesh = new THREE.Mesh(geo, mat);
         mesh.position.copy(pt);
-        // Randomize initial position for "scatter" effect
         mesh.userData.target = pt.clone();
         mesh.userData.start = pt.clone().add(new THREE.Vector3(
           (Math.random()-0.5)*100,
@@ -175,7 +178,6 @@
     }
 
     function animatePoints(group, direction = "in", duration = 1.2) {
-      // direction: 'in' = assemble, 'out' = scatter
       let timeStart = performance.now();
       let animate = () => {
         let t = (performance.now() - timeStart) / (duration * 1000);
@@ -184,13 +186,11 @@
           let from = direction === "in" ? mesh.userData.start : mesh.userData.target;
           let to = direction === "in" ? mesh.userData.target : mesh.userData.start;
           let ease = direction === "in" 
-            ? (1-Math.cos(Math.PI*t))/2 // easeInOutCos
-            : Math.sin(Math.PI*t/2);    // easeOutSin
+            ? (1-Math.cos(Math.PI*t))/2
+            : Math.sin(Math.PI*t/2);
           mesh.position.lerpVectors(from, to, ease);
         });
-        if (t < 1) {
-          requestAnimationFrame(animate);
-        }
+        if (t < 1) requestAnimationFrame(animate);
       };
       animate();
     }
@@ -232,15 +232,6 @@
       renderer.render(scene, camera);
     }
 
-    // Ánh sáng cho các mesh sphere
-    function addLights() {
-      scene.add(new THREE.AmbientLight(0xffffff, 0.6));
-      let dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
-      dirLight.position.set(0, 1, 1);
-      scene.add(dirLight);
-    }
-
-    addLights();
     init();
   </script>
 </body>
