@@ -31,19 +31,20 @@
       transition: opacity 0.3s;
   }
   .dotmatrix-dot {
-      width: 1.8vw; height: 1.8vw;
-      min-width: 8px; min-height: 8px;
-      max-width: 21px; max-height: 21px;
+      width: 1vw; height: 1vw;
+      min-width: 4px; min-height: 4px;
+      max-width: 14px; max-height: 14px;
       border-radius: 50%;
       background: #fff;
-      opacity: 0.13;
+      opacity: 0.12;
       box-shadow: 0 1px 3px #aaa8;
       transition: opacity 0.18s, background 0.2s;
+      margin: 0;
   }
   .dotmatrix-dot.on {
       background: #fff;
       opacity: 1;
-      box-shadow: 0 0 8px #fff, 0 0 16px #fff2;
+      box-shadow: 0 0 6px #fff, 0 0 10px #fff2;
       transition: opacity 0.18s, background 0.18s, box-shadow 0.2s;
   }
   /* Dot grid mặt phẳng 3D bên dưới */
@@ -63,12 +64,12 @@
       opacity: 0.45;
   }
   .plane-dot {
-      width: 0.48vw; height: 0.48vw;
-      min-width: 2.4px; min-height: 2.4px;
-      max-width: 7px; max-height: 7px;
+      width: 0.3vw; height: 0.3vw;
+      min-width: 1.5px; min-height: 1.5px;
+      max-width: 5px; max-height: 5px;
       border-radius: 50%;
       background: #fff;
-      opacity: 0.18;
+      opacity: 0.14;
       box-shadow: 0 1px 3px #fff4;
   }
   @media (max-width: 600px) {
@@ -83,8 +84,7 @@
     <div class="plane-dot-grid" id="plane-dot-grid"></div>
 </div>
 <script>
-// Bitmap số 3, 2, 1 cho dot matrix 24x24 (tạo bằng generator hoặc chuyển từ ảnh)
-// Để tối ưu, chỉ bật chấm ở vùng giữa (cột 4-20, dòng 4-20)
+// Bitmap số 3, 2, 1 cho dot matrix 24x24
 const NUM_BITMAP = {
   3: [
     "000111111110000000000000",
