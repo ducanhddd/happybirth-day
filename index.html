@@ -5,33 +5,17 @@
   <title>Chúc Mừng Sinh Nhật!</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
-      overflow: hidden;
-      width: 100vw;
-      height: 100vh;
-      background: #000;
+      margin: 0; padding: 0; overflow: hidden;
+      width: 100vw; height: 100vh; background: #000;
     }
     #webgl {
-      position: absolute;
-      width: 100vw;
-      height: 100vh;
-      top: 0; left: 0;
-      z-index: 1;
+      position: absolute; width: 100vw; height: 100vh; top: 0; left: 0; z-index: 1;
     }
     #overlay {
-      position: absolute;
-      width: 100vw;
-      height: 100vh;
-      top: 0; left: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      z-index: 2;
-      pointer-events: none;
-      color: white;
-      font-family: 'Arial', sans-serif;
+      position: absolute; width: 100vw; height: 100vh; top: 0; left: 0;
+      display: flex; align-items: center; justify-content: center; flex-direction: column;
+      z-index: 2; pointer-events: none;
+      color: white; font-family: 'Arial', sans-serif;
       text-shadow: 0 0 16px #fff, 0 0 32px #0ff, 0 0 64px #f0f;
     }
   </style>
@@ -48,7 +32,7 @@
     let pointsGroup;
     let font;
     let countdown = 3;
-    let overlay = document.getElementById("overlay");
+    const overlay = document.getElementById("overlay");
 
     function randomColor() {
       const colors = [
@@ -58,29 +42,27 @@
     }
 
     function createUniverseBackground() {
-      // Nebula
       for (let i = 0; i < 800; i++) {
-        let mat = new THREE.PointsMaterial({ 
-          color: randomColor(), 
-          size: Math.random() * 4 + 2, 
-          transparent: true, 
-          opacity: 0.08 + Math.random() * 0.15 
+        let mat = new THREE.PointsMaterial({
+          color: randomColor(),
+          size: Math.random() * 4 + 2,
+          transparent: true,
+          opacity: 0.08 + Math.random() * 0.15
         });
         let geo = new THREE.BufferGeometry().setFromPoints([
           new THREE.Vector3(
-            (Math.random() - 0.5) * 800, 
-            (Math.random() - 0.5) * 800, 
+            (Math.random() - 0.5) * 800,
+            (Math.random() - 0.5) * 800,
             -400 + Math.random() * 200
           )
         ]);
         let point = new THREE.Points(geo, mat);
         scene.add(point);
       }
-      // Stars
       for (let i = 0; i < 4000; i++) {
         let mat = new THREE.PointsMaterial({
-          color: 0xffffff, 
-          size: Math.random() * 0.8 + 0.1, 
+          color: 0xffffff,
+          size: Math.random() * 0.8 + 0.1,
           transparent: true,
           opacity: Math.random() * 0.8 + 0.2
         });
@@ -105,7 +87,7 @@
 
     function init() {
       scene = new THREE.Scene();
-      camera = new THREE.PerspectiveCamera(60, window.innerWidth/window.innerHeight, 1, 2000);
+      camera = new THREE.PerspectiveCamera(60, window.innerWidth / window.innerHeight, 1, 2000);
       camera.position.set(0, 0, 220);
 
       renderer = new THREE.WebGLRenderer({ canvas: document.getElementById("webgl"), antialias: true });
@@ -134,7 +116,7 @@
     }
 
     function onWindowResize() {
-      camera.aspect = window.innerWidth/window.innerHeight;
+      camera.aspect = window.innerWidth / window.innerHeight;
       camera.updateProjectionMatrix();
       renderer.setSize(window.innerWidth, window.innerHeight);
     }
@@ -146,7 +128,7 @@
       let points = [];
       shapes.forEach(shape => {
         let pts = shape.getPoints(50);
-        for (let i = 0; i < pts.length; i += Math.round(1/density)) {
+        for (let i = 0; i < pts.length; i += Math.round(1 / density)) {
           points.push(new THREE.Vector3(pts[i].x, pts[i].y, 0));
         }
       });
@@ -156,7 +138,7 @@
     function createPointsMesh(points) {
       let group = new THREE.Group();
       points.forEach(pt => {
-        let geo = new THREE.SphereGeometry(1.8 + Math.random()*0.6, 12, 12);
+        let geo = new THREE.SphereGeometry(1.8 + Math.random() * 0.6, 12, 12);
         let mat = new THREE.MeshStandardMaterial({
           color: randomColor(),
           emissive: 0x222222,
@@ -167,9 +149,9 @@
         mesh.position.copy(pt);
         mesh.userData.target = pt.clone();
         mesh.userData.start = pt.clone().add(new THREE.Vector3(
-          (Math.random()-0.5)*100,
-          (Math.random()-0.5)*100,
-          (Math.random()-0.5)*50
+          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 100,
+          (Math.random() - 0.5) * 50
         ));
         mesh.position.copy(mesh.userData.start);
         group.add(mesh);
@@ -185,9 +167,9 @@
         group.children.forEach(mesh => {
           let from = direction === "in" ? mesh.userData.start : mesh.userData.target;
           let to = direction === "in" ? mesh.userData.target : mesh.userData.start;
-          let ease = direction === "in" 
-            ? (1-Math.cos(Math.PI*t))/2
-            : Math.sin(Math.PI*t/2);
+          let ease = direction === "in"
+            ? (1 - Math.cos(Math.PI * t)) / 2
+            : Math.sin(Math.PI * t / 2);
           mesh.position.lerpVectors(from, to, ease);
         });
         if (t < 1) requestAnimationFrame(animate);
