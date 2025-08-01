@@ -2,76 +2,73 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Dot Matrix 3D Countdown</title>
+  <title>Dot Matrix Morphing Countdown</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
   body {
-      margin: 0; padding: 0;
       background: #000;
       min-height: 100vh;
+      margin: 0; padding: 0;
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
   }
   .scene-3d {
       position: relative;
-      width: min(80vw, 520px);
-      height: min(80vw, 520px);
-      display: flex; align-items: center; justify-content: center;
+      width: min(90vw, 500px);
+      height: min(90vw, 500px);
       perspective: 1200px;
       perspective-origin: 50% 80%;
+      display: flex; align-items: center; justify-content: center;
   }
-  .dotmatrix-grid {
+  .dotmatrix-morph {
       position: absolute;
-      left: 50%; top: 50%;
-      transform: translate(-50%, -54%) scale(1.1) rotateX(18deg);
-      display: grid;
-      grid-template-columns: repeat(24, 1fr);
-      grid-template-rows: repeat(24, 1fr);
-      width: 92%; height: 92%;
+      left: 50%; top: 53%;
+      transform: translate(-50%,-50%) scale(1.10) rotateX(17deg);
+      width: 96%; height: 96%;
       z-index: 2;
       pointer-events: none;
-      filter: drop-shadow(0 12px 20px #000a);
-      transition: opacity 0.3s;
-      will-change: transform;
-    }
-  .dotmatrix-dot {
-      width: 1.04vw; height: 1.04vw;
-      min-width: 4px; min-height: 4px;
-      max-width: 12px; max-height: 12px;
-      border-radius: 50%;
-      background: #fff;
-      opacity: 0.09;
-      margin: 0;
-      box-shadow: 0 1px 2px #fff4;
-      transition: opacity 0.18s, background 0.2s, box-shadow 0.22s;
   }
-  .dotmatrix-dot.on {
+  .dot {
+      position: absolute;
+      width: 12px; height: 12px;
+      background: #fff;
+      border-radius: 50%;
+      opacity: 0.16;
+      box-shadow: 0 1px 4px #fff4;
+      will-change: transform, opacity, background;
+      transition:
+        transform 0.68s cubic-bezier(.49,1.7,.52,1),
+        opacity 0.28s,
+        background 0.19s;
+  }
+  .dot.on {
       opacity: 1;
       background: #fff;
-      box-shadow: 0 0 6px #fff, 0 0 10px #fff2;
-      transition: opacity 0.18s, background 0.18s, box-shadow 0.22s;
+      box-shadow: 0 0 12px #fff, 0 0 16px #fff2, 0 0 2px #fff;
+      transition:
+        transform 0.68s cubic-bezier(.49,1.7,.52,1),
+        opacity 0.29s,
+        background 0.19s;
   }
-  /* Dot grid mặt phẳng 3D bên dưới */
+  /* Plane 3D dots bên dưới */
   .plane-dot-grid {
       position: absolute;
       left: 50%; top: 80%;
-      transform: translate(-50%,0) perspective(1000px) rotateX(72deg) scaleX(1.15) scaleY(0.82);
+      transform: translate(-50%,0) perspective(1000px) rotateX(72deg) scaleX(1.12) scaleY(0.8);
       display: grid;
       grid-template-columns: repeat(42, 1fr);
       grid-template-rows: repeat(12, 1fr);
-      width: 95vw;
+      width: 98vw;
       max-width: 1200px;
       height: 13vw;
       max-height: 160px;
       z-index: 1;
       pointer-events: none;
-      opacity: 0.42;
-      filter: blur(0.5px) brightness(0.86);
+      opacity: 0.38;
+      filter: blur(0.5px) brightness(0.87);
   }
   .plane-dot {
-      width: 0.35vw; height: 0.35vw;
-      min-width: 1.7px; min-height: 1.7px;
-      max-width: 5px; max-height: 5px;
+      width: 5px; height: 5px;
       border-radius: 50%;
       background: #fff;
       opacity: 0.13;
@@ -80,10 +77,10 @@
   }
   .done-msg {
       position: absolute;
-      left: 50%; top: 45%;
+      left: 50%; top: 44%;
       transform: translate(-50%,-50%);
       color: #fff;
-      font-size: 2.8em;
+      font-size: 2.6em;
       z-index: 5;
       text-align: center;
       text-shadow: 0 0 32px #fff, 0 0 24px #fff2;
@@ -101,17 +98,18 @@
   }
   @media (max-width: 600px) {
       .scene-3d { width: 99vw; height: 99vw;}
-      .plane-dot-grid { width: 99vw; height: 14vw;}
+      .plane-dot-grid { width: 98vw; height: 16vw;}
+      .dot { width: 7px; height: 7px;}
   }
   </style>
 </head>
 <body>
 <div class="scene-3d">
-    <div id="dotmatrix" class="dotmatrix-grid"></div>
+    <div id="dotmatrix" class="dotmatrix-morph"></div>
     <div class="plane-dot-grid" id="plane-dot-grid"></div>
 </div>
 <script>
-// Bitmap số 3, 2, 1 cho dot matrix 24x24
+// Dot matrix bitmap số 3,2,1 (24x24)
 const NUM_BITMAP = {
   3: [
     "000111111110000000000000",
@@ -192,32 +190,107 @@ const NUM_BITMAP = {
     "000000000000000000000000"
   ]
 };
-const dotN = 24;
+const dotN = 24; // lưới 24x24
 const dotmatrix = document.getElementById('dotmatrix');
 
-// Create dot matrix grid only once!
+// Tạo mảng dot (xếp lưới đều)
 const dots = [];
-for(let r=0; r<dotN; r++){
-    for(let c=0; c<dotN; c++){
-        let dot = document.createElement("div");
-        dot.className = "dotmatrix-dot";
-        dotmatrix.appendChild(dot);
-        dots.push(dot);
-    }
+let gridSize = Math.min(dotmatrix.offsetWidth, dotmatrix.offsetHeight); // sẽ cập nhật lại sau khi DOM loaded
+function createDots() {
+    dotmatrix.innerHTML = "";
+    dots.length = 0;
+    gridSize = Math.min(dotmatrix.offsetWidth, dotmatrix.offsetHeight);
+    const cellW = gridSize/dotN, cellH = gridSize/dotN;
+    for(let r=0; r<dotN; r++)
+        for(let c=0; c<dotN; c++){
+            let dot = document.createElement("div");
+            dot.className = "dot";
+            dot.style.left = (c*cellW) + "px";
+            dot.style.top = (r*cellH) + "px";
+            dot.style.transform = `translate(0,0)`;
+            dotmatrix.appendChild(dot);
+            dots.push({
+                el: dot,
+                grid: {x: c*cellW, y: r*cellH},
+                pos: {x: c*cellW, y: r*cellH} // khởi tạo tại lưới đều
+            });
+        }
 }
 
-function showNumber(n) {
-    const bitmap = NUM_BITMAP[n];
-    for(let r=0; r<dotN; r++){
-        for(let c=0; c<dotN; c++){
-            const idx = r*dotN + c;
-            if(bitmap && bitmap[r][c]==="1"){
-                dots[idx].classList.add('on');
-            } else {
-                dots[idx].classList.remove('on');
+// Lấy vị trí các dot để hợp thành số
+function getNumberPositions(num) {
+    // Bitmap số, chỉ lấy các dot "1"
+    const matrix = NUM_BITMAP[num];
+    let numDot = 0;
+    let posArr = [];
+    // căn giữa vùng số
+    let minR=dotN,maxR=0,minC=dotN,maxC=0;
+    for(let r=0;r<dotN;r++) for(let c=0;c<dotN;c++) if(matrix[r][c]==="1"){ minR=Math.min(minR,r); maxR=Math.max(maxR,r); minC=Math.min(minC,c); maxC=Math.max(maxC,c);}
+    let offsetX = ((dotN-(maxC-minC+1))/2 - minC), offsetY = ((dotN-(maxR-minR+1))/2 - minR);
+    for(let r=0;r<dotN;r++){
+        for(let c=0;c<dotN;c++){
+            if(matrix[r][c]==="1"){
+                posArr.push({x: (c+offsetX), y: (r+offsetY)});
+                numDot++;
             }
         }
     }
+    return posArr;
+}
+
+// Animate dot morph: các dot di chuyển mềm mại từ lưới đều vào thành số và ngược lại
+let state = "spread"; // 'spread' (tách ra), 'number' (hợp thành số)
+let running = false;
+function morphToNumber(num) {
+    if(running) return;
+    running = true;
+    state = 'number';
+    // Tìm vị trí cho các dot "on" (tạo số)
+    const cellW = gridSize/dotN, cellH = gridSize/dotN;
+    const numPos = getNumberPositions(num);
+    // Lấy chỉ số dot sẽ bật (dot "on")
+    let onIdx = [];
+    for(let i=0;i<dots.length;i++) dots[i].el.classList.remove("on");
+    // Gán dot từ đầu tới hết: dot đầu tiên sẽ thành chấm đầu tiên của số (nếu số có ít dot hơn lưới)
+    let used = new Set();
+    numPos.forEach((p, i) => {
+        // tìm dot gần nhất chưa dùng
+        let minDist = 1e9, minIdx = -1;
+        for(let j=0; j<dots.length; j++){
+            if(used.has(j)) continue;
+            let dx = dots[j].grid.x/cellW - p.x, dy = dots[j].grid.y/cellH - p.y;
+            let dist = dx*dx+dy*dy;
+            if(dist < minDist){ minDist = dist; minIdx = j;}
+        }
+        if(minIdx>=0){
+            used.add(minIdx);
+            dots[minIdx].target = {x: p.x*cellW, y: p.y*cellH};
+            dots[minIdx].el.classList.add("on");
+        }
+    });
+    // Dot ko thuộc số thì tỏa ra vị trí lưới đều
+    for(let i=0;i<dots.length;i++){
+        if(!dots[i].el.classList.contains("on")){
+            dots[i].target = {x: dots[i].grid.x, y: dots[i].grid.y};
+        }
+    }
+    // Animate bằng CSS transform
+    for(let i=0;i<dots.length;i++){
+        let t = dots[i].target;
+        dots[i].el.style.transform=`translate(${t.x-dots[i].grid.x}px,${t.y-dots[i].grid.y}px)`;
+    }
+    setTimeout(()=>{running=false;}, 700);
+}
+function morphToSpread() {
+    if(running) return;
+    running = true;
+    state = 'spread';
+    // trở về lưới đều
+    for(let i=0;i<dots.length;i++){
+        dots[i].el.classList.remove("on");
+        dots[i].el.style.transform = `translate(0,0)`;
+    }
+    setTimeout(()=>{running=false;}, 700);
 }
 
 // Plane dot grid (mặt phẳng chấm bên dưới)
@@ -229,20 +302,38 @@ for(let r=0; r<12; r++)
         planeGrid.appendChild(dot);
     }
 
-// Đếm ngược
+// Countdown: tách ra, hợp lại thành số, tách ra, tiếp số mới...
 const countdowns = [3,2,1];
 let idx = 0;
 function nextCount(){
     if(idx < countdowns.length){
-        showNumber(countdowns[idx]);
-        idx++;
-        setTimeout(nextCount, 1100);
+        morphToSpread();
+        setTimeout(()=>{
+            morphToNumber(countdowns[idx]);
+            setTimeout(()=>{
+                idx++;
+                setTimeout(nextCount, 800);
+            }, 800);
+        }, 700);
     } else {
-        // Hết đếm ngược, hiện DONE hoặc hiệu ứng khác
-        dotmatrix.innerHTML = '<div class="done-msg">🎉 Chúc mừng sinh nhật! 🎉</div>';
+        morphToSpread();
+        setTimeout(()=>{
+            dotmatrix.innerHTML = '<div class="done-msg">🎉 Chúc mừng sinh nhật! 🎉</div>';
+        }, 800);
     }
 }
-window.onload = nextCount;
+
+// Responsive: khi resize thì vẽ lại dot
+function redraw() {
+    createDots();
+    morphToSpread();
+}
+window.addEventListener('resize', () => setTimeout(redraw,200));
+
+window.onload = () => {
+    createDots();
+    setTimeout(nextCount, 600);
+};
 </script>
 </body>
 </html>
