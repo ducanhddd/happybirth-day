@@ -2,309 +2,48 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Dot Matrix Morphing 3D Countdown</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chúc Mừng Sinh Nhật!</title>
   <style>
-  html, body {
-      background: #000;
-      margin: 0; padding: 0;
-      width: 100vw; height: 100vh;
+    html, body {
+      margin: 0;
+      padding: 0;
       overflow: hidden;
-  }
-  body {
-      display: flex; align-items: center; justify-content: center;
-      width: 100vw; height: 100vh;
-      background: radial-gradient(ellipse at center, #0c0c1d 0%, #000 100%);
-  }
-  #space-canvas {
-      display: block;
-      width: 100vw; height: 100vh;
-      position: absolute; left:0; top:0;
-      z-index: 2;
-      background: transparent;
-      filter: drop-shadow(0 0 10px #fff2);
-      touch-action: none;
-      user-select: none;
-  }
-  .msg3d {
+      width: 100vw;
+      height: 100vh;
+      background: #000;
+    }
+    #webgl {
       position: absolute;
-      left: 50%; top: 44%;
-      transform: translate(-50%,-50%);
-      color: #fff;
-      font-size: 2.8em;
-      z-index: 5;
-      text-align: center;
-      text-shadow: 0 0 32px #fff, 0 0 24px #fff2;
-      letter-spacing: 2px;
-      font-weight: bold;
-      filter: drop-shadow(0 2px 18px #fff8);
+      width: 100vw;
+      height: 100vh;
+      top: 0; left: 0;
+      z-index: 1;
+    }
+    #overlay {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      top: 0; left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      z-index: 2;
       pointer-events: none;
-      animation: fadeInPop .8s cubic-bezier(.34,1.56,.64,1);
-      opacity: 0.97;
-      white-space: nowrap;
-      text-wrap: nowrap;
-  }
-  @keyframes fadeInPop {
-      0% { opacity: 0; transform: scale(0.7) translate(-50%,-50%);}
-      80% { opacity: 1; transform: scale(1.08) translate(-50%,-50%);}
-      100% { opacity: 1; transform: scale(1) translate(-50%,-50%);}
-  }
+      color: white;
+      font-family: 'Arial', sans-serif;
+      text-shadow: 0 0 16px #fff, 0 0 32px #0ff, 0 0 64px #f0f;
+    }
   </style>
 </head>
 <body>
-<canvas id="space-canvas"></canvas>
-<div id="final-msg" class="msg3d" style="display:none;">🎉 Chúc mừng sinh nhật! 🎉</div>
-<script>
-/* ==== CONFIG ==== */
-const DOTS = 420; // số chấm vũ trụ
-const DOT_SIZE = 11; // px
-const DOT_COLOR = "#fff";
-const SPACE_RADIUS = 280; // px, vùng vũ trụ ban đầu
-const DOTMATRIX_ROWS = 20, DOTMATRIX_COLS = 13; // dot matrix số
-const DOTMATRIX_SIZE = 320; // px
-const MORPH_DURATION = 1100; // ms
-const HOLD_DURATION = 800; // ms giữa các pha
-
-// Dot matrix bitmap từng số (20x13, bạn có thể tăng size nếu muốn nét hơn)
-const BIG_NUM = {
-"3":[
-"0001111111000",
-"0011111111100",
-"0111000011110",
-"0110000001110",
-"0000000001110",
-"0000000001110",
-"0000000011100",
-"0000001111000",
-"0000111110000",
-"0000111110000",
-"0000001111100",
-"0000000011110",
-"0000000001110",
-"0000000001110",
-"0110000001110",
-"0111000011110",
-"0011111111100",
-"0001111111000",
-"0000000000000",
-"0000000000000"
-],
-"2":[
-"0001111111000",
-"0011111111100",
-"0111000011110",
-"0110000001110",
-"0000000001110",
-"0000000001110",
-"0000000011110",
-"0000000111100",
-"0000001111000",
-"0000011110000",
-"0000111100000",
-"0001111000000",
-"0011110000000",
-"0111100000000",
-"0111111111110",
-"0111111111110",
-"0000000000000",
-"0000000000000",
-"0000000000000",
-"0000000000000"
-],
-"1":[
-"0000001110000",
-"0000011110000",
-"0000111110000",
-"0001111110000",
-"0001111110000",
-"0000001110000",
-"0000001110000",
-"0000001110000",
-"0000001110000",
-"0000001110000",
-"0000001110000",
-"0000001110000",
-"0000001110000",
-"0000001110000",
-"0011111111100",
-"0011111111100",
-"0000000000000",
-"0000000000000",
-"0000000000000",
-"0000000000000"
-]
-};
-// ----
-const canvas = document.getElementById('space-canvas');
-const ctx = canvas.getContext('2d');
-let W = window.innerWidth, H = window.innerHeight;
-function resizeCanvas(){
-    W = window.innerWidth; H = window.innerHeight;
-    canvas.width = W; canvas.height = H;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-/* ---- Dot Universe ---- */
-function randSphere(r){
-    // Lấy 1 điểm ngẫu nhiên trên mặt cầu bán kính r
-    const u = Math.random();
-    const v = Math.random();
-    const theta = 2 * Math.PI * u;
-    const phi = Math.acos(2 * v - 1);
-    const x = r * Math.sin(phi) * Math.cos(theta);
-    const y = r * Math.sin(phi) * Math.sin(theta);
-    const z = r * Math.cos(phi);
-    return {x, y, z};
-}
-const dots = [];
-for(let i=0; i<DOTS; i++){
-    let pt = randSphere(SPACE_RADIUS * (0.7 + 0.3*Math.random()));
-    dots.push({
-        home: {...pt}, // Vị trí vũ trụ
-        pos: {...pt},
-        vel: {x:0,y:0,z:0},
-        target: {...pt},
-        color: DOT_COLOR,
-        active: false
-    });
-}
-
-/* ---- Dot matrix số lớn ---- */
-function getNumberDotTargets(num){
-    // Trả về các vị trí 3D (x,y,z) để các dot hợp thành số dot matrix
-    let map = BIG_NUM[num];
-    let cell = DOTMATRIX_SIZE / DOTMATRIX_ROWS;
-    let offsetX = -cell * (DOTMATRIX_COLS/2-0.5);
-    let offsetY = -cell * (DOTMATRIX_ROWS/2-0.5);
-    let positions = [];
-    for(let r=0; r<DOTMATRIX_ROWS; r++){
-        for(let c=0; c<DOTMATRIX_COLS; c++){
-            if(map[r][c]==="1"){
-                // Đặt dot lên mặt phẳng z=0 (giống như bảng số nổi)
-                positions.push({
-                    x: offsetX + c*cell + (Math.random()-0.5)*2, // thêm chút random cho "hologram"
-                    y: offsetY + r*cell + (Math.random()-0.5)*2,
-                    z: 0
-                });
-            }
-        }
-    }
-    return positions;
-}
-
-/* ---- Morphing Animation ---- */
-function morphToNumber(num){
-    // Đưa các dot về vị trí tạo số (dot matrix)
-    let targs = getNumberDotTargets(num);
-    // Shuffle để hiệu ứng dot hợp vào số đẹp hơn
-    let targsUsed = new Array(targs.length).fill(false);
-    for(let i=0; i<dots.length; i++){
-        let idx = -1, minD = 1e9;
-        // tìm vị trí gần nhất chưa dùng
-        for(let j=0; j<targs.length; j++){
-            if(targsUsed[j]) continue;
-            let dx = dots[i].pos.x - targs[j].x, dy = dots[i].pos.y - targs[j].y, dz = dots[i].pos.z - targs[j].z;
-            let d = dx*dx+dy*dy+dz*dz;
-            if(d < minD){ minD = d; idx = j;}
-        }
-        if(idx>=0){
-            targsUsed[idx] = true;
-            dots[i].target = {...targs[idx]};
-            dots[i].active = true;
-        } else {
-            // Dot dư, trôi ra xa (ẩn bớt chấm thừa)
-            dots[i].target = {...dots[i].home, z: dots[i].home.z+100+Math.random()*80};
-            dots[i].active = false;
-        }
-    }
-}
-function morphToSpace(){
-    // Đưa các dot về vị trí vũ trụ
-    for(let i=0; i<dots.length; i++){
-        dots[i].target = {...dots[i].home};
-        dots[i].active = false;
-    }
-}
-
-/* ---- Animate ---- */
-let morphState = "space"; // hoặc "number"
-let morphStart = 0;
-function animateMorph(){
-    let now = performance.now();
-    let p = Math.min(1, (now-morphStart)/MORPH_DURATION);
-    // Ease
-    let t = 0.5 - 0.5*Math.cos(Math.PI*p);
-    for(let i=0; i<dots.length; i++){
-        // Interpolate vị trí
-        dots[i].pos.x = dots[i].pos.x + (dots[i].target.x - dots[i].pos.x)*t;
-        dots[i].pos.y = dots[i].pos.y + (dots[i].target.y - dots[i].pos.y)*t;
-        dots[i].pos.z = dots[i].pos.z + (dots[i].target.z - dots[i].pos.z)*t;
-    }
-}
-
-/* ---- Perspective projection ---- */
-function project3D(pt){
-    // Camera ở (0,0,viewZ), nhìn về gốc
-    const viewZ = 650;
-    let scale = viewZ/(viewZ - pt.z);
-    let x = pt.x * scale + W/2;
-    let y = pt.y * scale + H/2;
-    return {x,y,scale};
-}
-
-/* ---- Draw ---- */
-function draw(){
-    ctx.clearRect(0,0,W,H);
-    // Vẽ các dot
-    for(let i=0; i<dots.length; i++){
-        let pt = dots[i].pos;
-        let pr = project3D(pt);
-        let size = DOT_SIZE * pr.scale * (dots[i].active?1.2:1);
-        ctx.beginPath();
-        ctx.arc(pr.x, pr.y, size/2, 0, 2*Math.PI, false);
-        ctx.globalAlpha = dots[i].active ? 0.97 : 0.29;
-        ctx.fillStyle = dots[i].active ? '#fff' : '#fff7';
-        ctx.shadowColor = dots[i].active ? "#fff" : "#fff";
-        ctx.shadowBlur = dots[i].active ? 16 : 8;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-    }
-    ctx.globalAlpha = 1;
-}
-function loop(){
-    animateMorph();
-    draw();
-    requestAnimationFrame(loop);
-}
-loop();
-
-/* ---- Countdown Logic ---- */
-const countdowns = [3,2,1];
-let idx = 0;
-function nextCount(){
-    if(idx < countdowns.length){
-        morphToSpace();
-        morphStart = performance.now();
-        setTimeout(()=>{
-            morphToNumber(countdowns[idx]);
-            morphStart = performance.now();
-            idx++;
-            setTimeout(nextCount, MORPH_DURATION + HOLD_DURATION);
-        }, MORPH_DURATION + HOLD_DURATION);
-    } else {
-        morphToSpace();
-        morphStart = performance.now();
-        setTimeout(()=>{
-            document.getElementById('final-msg').style.display = '';
-        }, MORPH_DURATION + 400);
-    }
-}
-// Bắt đầu countdown sau khi load
-window.onload = ()=> {
-    morphToSpace(); morphStart = performance.now();
-    setTimeout(nextCount, 900);
-};
-</script>
+  <canvas id="webgl"></canvas>
+  <div id="overlay"></div>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/FontLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/loaders/TYPRFontLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/geometries/TextGeometry.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
