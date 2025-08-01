@@ -2,7 +2,7 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>Dot Matrix Countdown</title>
+  <title>Dot Matrix 3D Countdown</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
   body {
@@ -12,74 +12,101 @@
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
   }
-  .dotmatrix-wrap {
+  .scene-3d {
       position: relative;
-      width: min(80vw, 480px);
-      height: min(80vw, 480px);
+      width: min(80vw, 520px);
+      height: min(80vw, 520px);
       display: flex; align-items: center; justify-content: center;
+      perspective: 1200px;
+      perspective-origin: 50% 80%;
   }
   .dotmatrix-grid {
       position: absolute;
       left: 50%; top: 50%;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%, -54%) scale(1.1) rotateX(18deg);
       display: grid;
       grid-template-columns: repeat(24, 1fr);
       grid-template-rows: repeat(24, 1fr);
-      width: 100%; height: 100%;
+      width: 92%; height: 92%;
       z-index: 2;
       pointer-events: none;
+      filter: drop-shadow(0 12px 20px #000a);
       transition: opacity 0.3s;
-  }
+      will-change: transform;
+    }
   .dotmatrix-dot {
-      width: 1vw; height: 1vw;
+      width: 1.04vw; height: 1.04vw;
       min-width: 4px; min-height: 4px;
-      max-width: 14px; max-height: 14px;
+      max-width: 12px; max-height: 12px;
       border-radius: 50%;
       background: #fff;
-      opacity: 0.12;
-      box-shadow: 0 1px 3px #aaa8;
-      transition: opacity 0.18s, background 0.2s;
+      opacity: 0.09;
       margin: 0;
+      box-shadow: 0 1px 2px #fff4;
+      transition: opacity 0.18s, background 0.2s, box-shadow 0.22s;
   }
   .dotmatrix-dot.on {
-      background: #fff;
       opacity: 1;
+      background: #fff;
       box-shadow: 0 0 6px #fff, 0 0 10px #fff2;
-      transition: opacity 0.18s, background 0.18s, box-shadow 0.2s;
+      transition: opacity 0.18s, background 0.18s, box-shadow 0.22s;
   }
   /* Dot grid mặt phẳng 3D bên dưới */
   .plane-dot-grid {
       position: absolute;
-      left: 50%; top: 72%;
-      transform: translate(-50%,0) scaleX(1.11) perspective(400px) rotateX(62deg);
+      left: 50%; top: 80%;
+      transform: translate(-50%,0) perspective(1000px) rotateX(72deg) scaleX(1.15) scaleY(0.82);
       display: grid;
-      grid-template-columns: repeat(32, 1fr);
-      grid-template-rows: repeat(8, 1fr);
-      width: 75vw;
-      max-width: 900px;
+      grid-template-columns: repeat(42, 1fr);
+      grid-template-rows: repeat(12, 1fr);
+      width: 95vw;
+      max-width: 1200px;
       height: 13vw;
-      max-height: 150px;
+      max-height: 160px;
       z-index: 1;
       pointer-events: none;
-      opacity: 0.45;
+      opacity: 0.42;
+      filter: blur(0.5px) brightness(0.86);
   }
   .plane-dot {
-      width: 0.3vw; height: 0.3vw;
-      min-width: 1.5px; min-height: 1.5px;
+      width: 0.35vw; height: 0.35vw;
+      min-width: 1.7px; min-height: 1.7px;
       max-width: 5px; max-height: 5px;
       border-radius: 50%;
       background: #fff;
-      opacity: 0.14;
-      box-shadow: 0 1px 3px #fff4;
+      opacity: 0.13;
+      box-shadow: 0 1px 2px #fff4;
+      margin: 0;
+  }
+  .done-msg {
+      position: absolute;
+      left: 50%; top: 45%;
+      transform: translate(-50%,-50%);
+      color: #fff;
+      font-size: 2.8em;
+      z-index: 5;
+      text-align: center;
+      text-shadow: 0 0 32px #fff, 0 0 24px #fff2;
+      letter-spacing: 2px;
+      font-weight: bold;
+      filter: drop-shadow(0 2px 18px #fff8);
+      pointer-events: none;
+      animation: fadeInPop .8s cubic-bezier(.34,1.56,.64,1);
+      opacity: 0.95;
+  }
+  @keyframes fadeInPop {
+      0% { opacity: 0; transform: scale(0.7) translate(-50%,-50%);}
+      80% { opacity: 1; transform: scale(1.1) translate(-50%,-50%);}
+      100% { opacity: 1; transform: scale(1) translate(-50%,-50%);}
   }
   @media (max-width: 600px) {
-      .dotmatrix-wrap { width: 98vw; height: 98vw;}
-      .plane-dot-grid { width: 99vw; height: 18vw;}
+      .scene-3d { width: 99vw; height: 99vw;}
+      .plane-dot-grid { width: 99vw; height: 14vw;}
   }
   </style>
 </head>
 <body>
-<div class="dotmatrix-wrap">
+<div class="scene-3d">
     <div id="dotmatrix" class="dotmatrix-grid"></div>
     <div class="plane-dot-grid" id="plane-dot-grid"></div>
 </div>
@@ -195,8 +222,8 @@ function showNumber(n) {
 
 // Plane dot grid (mặt phẳng chấm bên dưới)
 const planeGrid = document.getElementById("plane-dot-grid");
-for(let r=0; r<8; r++)
-    for(let c=0; c<32; c++){
+for(let r=0; r<12; r++)
+    for(let c=0; c<42; c++){
         let dot = document.createElement("div");
         dot.className = "plane-dot";
         planeGrid.appendChild(dot);
@@ -212,7 +239,7 @@ function nextCount(){
         setTimeout(nextCount, 1100);
     } else {
         // Hết đếm ngược, hiện DONE hoặc hiệu ứng khác
-        dotmatrix.innerHTML = '<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;"><span style="font-size:2.5em;color:#fff;text-shadow:0 0 32px #fff;">🎉 Chúc mừng sinh nhật! 🎉</span></div>';
+        dotmatrix.innerHTML = '<div class="done-msg">🎉 Chúc mừng sinh nhật! 🎉</div>';
     }
 }
 window.onload = nextCount;
