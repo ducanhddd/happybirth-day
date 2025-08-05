@@ -13,40 +13,44 @@
         }
         #stars3d { z-index: 1; }
         #effect-canvas { z-index: 2; }
+
+        /* --- CSS đã căn chỉnh lại cho Lời chúc --- */
         #wishes {
             z-index: 3;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            font-size: 2.6vw;
+            font-size: clamp(16px, 2.6vw, 36px); /* Kích thước chữ linh hoạt */
             color: #fff;
             font-family: 'Segoe UI', 'Arial', sans-serif;
             text-shadow: 0 2px 12px #e46bc2, 0 4px 32px #b85cff;
             opacity: 0;
             transition: opacity 1.6s;
             text-align: center;
-            padding: 0 10vw;
-            line-height: 1.4;
+            padding: 0 5vw;
+            line-height: 1.5;
             letter-spacing: 0.02em;
             pointer-events: auto;
+            max-width: 90vw;
+            margin: auto;
         }
         #wishes-content {
-            margin-bottom: 2.2vw;
+            margin-bottom: 2.5vh; /* Khoảng cách đã được điều chỉnh */
         }
         #wishes img {
-            max-width: 220px;
-            width: 35vw;
-            max-height: 30vh;
-            margin: 1vw auto 0 auto;
+            max-width: 320px; /* Tăng kích thước tối đa cho ảnh */
+            width: 40vw;
+            max-height: 40vh;
+            margin: 2.5vh auto 0 auto;
             border-radius: 1vw;
             box-shadow: 0 6px 32px #b85cff55;
             display: block;
         }
         #goto-btn {
-            margin-top: 2.5vw;
-            padding: 0.7em 2.2em;
-            font-size: 1.2em;
+            margin-top: 3vh; /* Khoảng cách đã được điều chỉnh */
+            padding: 0.8em 2.4em;
+            font-size: clamp(14px, 1.2em, 20px); /* Kích thước chữ linh hoạt */
             background: linear-gradient(90deg,#e46bc2,#b85cff,#735dff);
             color: #fff;
             border: none;
@@ -54,7 +58,7 @@
             cursor: pointer;
             box-shadow: 0 2px 22px #735dff22;
             font-family: inherit;
-            transition: opacity 0.2s, background 0.3s;
+            transition: opacity 0.2s, background 0.3s, transform 0.2s;
             opacity: 0.94;
             pointer-events: auto;
         }
@@ -63,14 +67,53 @@
             background: linear-gradient(90deg,#b85cff,#e46bc2,#ffb86c);
             color: #fffde4;
             box-shadow: 0 2px 32px #e46bc288;
+            transform: scale(1.05);
         }
         @media (max-width:600px) {
-            #wishes { font-size: 4.6vw; padding:0 3vw;}
+            #wishes { padding:0 3vw;}
             #wishes img { max-width: 90vw; width: 90vw;}
+        }
+        
+        /* --- CSS đã căn chỉnh lại cho Màn hình chờ --- */
+        #start-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: radial-gradient(ellipse at 25% 40%, #735dff 0%, #b85cff 30%, #e46bc2 65%, #ffb86c 100%);
+            z-index: 10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1.2s ease-in-out;
+        }
+        #start-button {
+            padding: 1.2em 3.5em;
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #fffde4;
+            background: linear-gradient(90deg,#b85cff,#e46bc2,#ffb86c);
+            border: none;
+            border-radius: 3em;
+            cursor: pointer;
+            box-shadow: 0 4px 28px rgba(0,0,0,0.25);
+            font-family: 'Segoe UI', Arial, sans-serif;
+            letter-spacing: 0.05em;
+            opacity: 0.95;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+        #start-button:hover {
+            opacity: 1;
+            transform: scale(1.05);
         }
     </style>
 </head>
 <body>
+<div id="start-screen">
+    <button id="start-button">Bắt đầu 🚀</button>
+</div>
+
 <canvas id="stars3d"></canvas>
 <canvas id="effect-canvas"></canvas>
 <div id="wishes">
@@ -78,7 +121,6 @@
     <img id="wish-img" src="" alt="Lời chúc" style="display:none">
     <button id="goto-btn" style="display:none">Xem quà đặc biệt 🎁</button>
 </div>
-<!-- Thay đổi src ở dưới để dùng bài nhạc khác -->
 <audio id="bg-music" src="music/nhac1.mp3" loop></audio>
 <script>
 // --- VŨ TRỤ 3D ---
@@ -211,193 +253,193 @@ function drawDots(dotArr) {
 
 // --- Dot matrix chữ (Happy Birthday To You) ---
 const LETTER_MATRIX = {
-  H: [
-    "xxxx      xxxx",
-    "xxxx      xxxx",
-    "xxxx      xxxx",
-    "xxxx      xxxx",
-    "xxxxxxxxxxxxxx",
-    "xxxxxxxxxxxxxx",
-    "xxxx      xxxx",
-    "xxxx      xxxx",
-    "xxxx      xxxx",
-    "xxxx      xxxx"
-  ],
-  A: [
-    "       xx       ",
-    "      xxxx      ",
-    "     xxxxxx     ",
-    "    xxxxxxxx    ",
-    "   xxxx  xxxx   ",
-    "  xxxxxxxxxxxx  ",
-    " xxxxxxxxxxxxxx ",
-    "xxxx        xxxx",
-    "xxxx        xxxx"
-  ],
-  P: [
-    "xxxxxxxxxxx  ",
-    "xxxxxxxxxxxx ",
-    "xxxx     xxxx",
-    "xxxx     xxxx",
-    "xxxxxxxxxxxx ",
-    "xxxxxxxxxxx  ",
-    "xxxx         ",
-    "xxxx         ",
-    "xxxx         ",
-    "xxxx         "
-  ],
-  Y: [
-    "xxx        xxx ",
-    " xxx      xxx  ",
-    "  xxx    xxx   ",
-    "   xxx  xxx    ",
-    "     xxxx      ",
-    "     xxxx      ",
-    "     xxxx      ",
-    "     xxxx      ",
-    "     xxxx      ",
-    "     xxxx      "
-  ],
-  B: [
-    "xxxxxxxxx  ",
-    "xxxxxxxxxx ",
-    "xxx     xxx",
-    "xxx     xxx",
-    "xxxxxxxxxx ",
-    "xxx     xxx",
-    "xxx     xxx",
-    "xxx     xxx",
-    "xxxxxxxxxx ",
-    "xxxxxxxxx  "
-  ],
-  I: [
-    "xxxx",
-    "xxxx",
-    "xxxx",
-    "xxxx",
-    "xxxx",
-    "xxxx",
-    "xxxx",
-    "xxxx",
-    "xxxx",
-    "xxxx"
-  ],
-  R: [
-    "xxxxxxxx  ",
-    "xxxxxxxxx ",
-    "xx     xx ",
-    "xx     xx ",
-    "xxxxxxxx  ",
-    "xxxxxxx   ",
-    "xx    xx  ",
-    "xx     xx ",
-    "xx     xx ",
-    "xx     xx "
-  ],
-  T: [
-    "xxxxxxxxxx",
-    "xxxxxxxxxx",
-    "    xx    ",
-    "    xx    ",
-    "    xx    ",
-    "    xx    ",
-    "    xx    ",
-    "    xx    ",
-    "    xx    ",
-    "    xx    "
-  ],
-  D: [
-    "xxxxxxxxx  ",
-    "xxxxxxxxxx ",
-    "xxx     xxx",
-    "xxx     xxx",
-    "xxx     xxx",
-    "xxx     xxx",
-    "xxx     xxx",
-    "xxx     xxx",
-    "xxxxxxxxxx ",
-    "xxxxxxxxx  "
-  ],
-  O: [
-    "  xxxxxx  ",
-    " xxx  xxx ",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    " xxx  xxx ",
-    "  xxxxxx  "
-  ],
-  U: [
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    "xx      xx",
-    " xxxxxxxx ",
-    "  xxxxxx  "
-  ],
-  ' ': [
-    "      ",
-    "      ",
-    "      ",
-    "      ",
-    "      ",
-    "      ",
-    "      ",
-    "      ",
-    "      ",
-    "      "
-  ]
+    H: [
+        "xxxx      xxxx",
+        "xxxx      xxxx",
+        "xxxx      xxxx",
+        "xxxx      xxxx",
+        "xxxxxxxxxxxxxx",
+        "xxxxxxxxxxxxxx",
+        "xxxx      xxxx",
+        "xxxx      xxxx",
+        "xxxx      xxxx",
+        "xxxx      xxxx"
+    ],
+    A: [
+        "        xx      ",
+        "      xxxx      ",
+        "     xxxxxx     ",
+        "    xxxxxxxx    ",
+        "   xxxx  xxxx   ",
+        "  xxxxxxxxxxxx  ",
+        " xxxxxxxxxxxxxx ",
+        "xxxx        xxxx",
+        "xxxx        xxxx"
+    ],
+    P: [
+        "xxxxxxxxxxx  ",
+        "xxxxxxxxxxxx ",
+        "xxxx     xxxx",
+        "xxxx     xxxx",
+        "xxxxxxxxxxxx ",
+        "xxxxxxxxxxx  ",
+        "xxxx         ",
+        "xxxx         ",
+        "xxxx         ",
+        "xxxx         "
+    ],
+    Y: [
+        "xxx        xxx ",
+        " xxx      xxx  ",
+        "  xxx    xxx   ",
+        "   xxx  xxx    ",
+        "     xxxx      ",
+        "     xxxx      ",
+        "     xxxx      ",
+        "     xxxx      ",
+        "     xxxx      ",
+        "     xxxx      "
+    ],
+    B: [
+        "xxxxxxxxx  ",
+        "xxxxxxxxxx ",
+        "xxx      xxx",
+        "xxx      xxx",
+        "xxxxxxxxxx ",
+        "xxx      xxx",
+        "xxx      xxx",
+        "xxx      xxx",
+        "xxxxxxxxxx ",
+        "xxxxxxxxx  "
+    ],
+    I: [
+        "xxxx",
+        "xxxx",
+        "xxxx",
+        "xxxx",
+        "xxxx",
+        "xxxx",
+        "xxxx",
+        "xxxx",
+        "xxxx",
+        "xxxx"
+    ],
+    R: [
+        "xxxxxxxx  ",
+        "xxxxxxxxx ",
+        "xx      xx",
+        "xx      xx",
+        "xxxxxxxx  ",
+        "xxxxxxx   ",
+        "xx   xx   ",
+        "xx    xx  ",
+        "xx    xx  ",
+        "xx    xx  "
+    ],
+    T: [
+        "xxxxxxxxxx",
+        "xxxxxxxxxx",
+        "   xx     ",
+        "   xx     ",
+        "   xx     ",
+        "   xx     ",
+        "   xx     ",
+        "   xx     ",
+        "   xx     ",
+        "   xx     "
+    ],
+    D: [
+        "xxxxxxxxx  ",
+        "xxxxxxxxxx ",
+        "xxx      xxx",
+        "xxx      xxx",
+        "xxx      xxx",
+        "xxx      xxx",
+        "xxx      xxx",
+        "xxx      xxx",
+        "xxxxxxxxxx ",
+        "xxxxxxxxx  "
+    ],
+    O: [
+        "   xxxxxx   ",
+        "  xxx  xxx  ",
+        " xx      xx ",
+        " xx      xx ",
+        " xx      xx ",
+        " xx      xx ",
+        " xx      xx ",
+        " xx      xx ",
+        "  xxx  xxx  ",
+        "   xxxxxx   "
+    ],
+    U: [
+        "xx      xx",
+        "xx      xx",
+        "xx      xx",
+        "xx      xx",
+        "xx      xx",
+        "xx      xx",
+        "xx      xx",
+        "xx      xx",
+        " xxxxxxxx ",
+        "  xxxxxx  "
+    ],
+    ' ': [
+        "      ",
+        "      ",
+        "      ",
+        "      ",
+        "      ",
+        "      ",
+        "      ",
+        "      ",
+        "      ",
+        "      "
+    ]
 };
 
 function getPatternForText(text) {
-  let result = [];
-  let offsetCol = 0;
-  text = text.toUpperCase();
-  for (let i = 0; i < text.length; ++i) {
-    let ch = text[i];
-    let matrix = LETTER_MATRIX[ch] || LETTER_MATRIX[' '];
-    for (let row = 0; row < matrix.length; ++row) {
-      for (let col = 0; col < matrix[row].length; ++col) {
-        if (matrix[row][col] === "x") {
-          result.push({col: offsetCol + col, row});
+    let result = [];
+    let offsetCol = 0;
+    text = text.toUpperCase();
+    for (let i = 0; i < text.length; ++i) {
+        let ch = text[i];
+        let matrix = LETTER_MATRIX[ch] || LETTER_MATRIX[' '];
+        for (let row = 0; row < matrix.length; ++row) {
+            for (let col = 0; col < matrix[row].length; ++col) {
+                if (matrix[row][col] === "x") {
+                    result.push({col: offsetCol + col, row});
+                }
+            }
         }
-      }
+        offsetCol += matrix[0].length + 2; // space between letters
     }
-    offsetCol += matrix[0].length + 2; // space between letters
-  }
-  return result;
+    return result;
 }
 
 function getDotSizeText() { return Math.min(w,h) * 0.013; }
 function getDotGapText() { return getDotSizeText() * 0.36; }
 
 function getPatternCoords(patternInfo) {
-  const DOT_SIZE = getDotSizeText();
-  const DOT_GAP = getDotGapText();
-  let minCol = Math.min(...patternInfo.map(d => d.col));
-  let maxCol = Math.max(...patternInfo.map(d => d.col));
-  let minRow = Math.min(...patternInfo.map(d => d.row));
-  let maxRow = Math.max(...patternInfo.map(d => d.row));
-  let cols = maxCol - minCol + 1;
-  let rows = maxRow - minRow + 1;
-  let fullW = cols * (DOT_SIZE + DOT_GAP);
-  let fullH = rows * (DOT_SIZE + DOT_GAP);
+    const DOT_SIZE = getDotSizeText();
+    const DOT_GAP = getDotGapText();
+    let minCol = Math.min(...patternInfo.map(d => d.col));
+    let maxCol = Math.max(...patternInfo.map(d => d.col));
+    let minRow = Math.min(...patternInfo.map(d => d.row));
+    let maxRow = Math.max(...patternInfo.map(d => d.row));
+    let cols = maxCol - minCol + 1;
+    let rows = maxRow - minRow + 1;
+    let fullW = cols * (DOT_SIZE + DOT_GAP);
+    let fullH = rows * (DOT_SIZE + DOT_GAP);
 
-  let offsetX = w/2 - fullW/2 - minCol * (DOT_SIZE + DOT_GAP);
-  let offsetY = h/2 - fullH/2 - minRow * (DOT_SIZE + DOT_GAP);
+    let offsetX = w/2 - fullW/2 - minCol * (DOT_SIZE + DOT_GAP);
+    let offsetY = h/2 - fullH/2 - minRow * (DOT_SIZE + DOT_GAP);
 
-  return patternInfo.map(d => ({
-    x: offsetX + d.col * (DOT_SIZE + DOT_GAP),
-    y: offsetY + d.row * (DOT_SIZE + DOT_GAP),
-    r: DOT_SIZE/2
-  }));
+    return patternInfo.map(d => ({
+        x: offsetX + d.col * (DOT_SIZE + DOT_GAP),
+        y: offsetY + d.row * (DOT_SIZE + DOT_GAP),
+        r: DOT_SIZE/2
+    }));
 }
 
 // --- Animation logic ---
@@ -609,8 +651,20 @@ function launch() {
     playMusic();
 }
 
-launch();
+// --- JavaScript cho Màn hình chờ ---
+const startScreen = document.getElementById('start-screen');
+const startButton = document.getElementById('start-button');
 
+startButton.addEventListener('click', () => {
+    // Ẩn màn hình chờ
+    startScreen.style.opacity = '0';
+    setTimeout(() => {
+        startScreen.style.display = 'none';
+    }, 1200);
+
+    // Bắt đầu các hiệu ứng và nhạc
+    launch();
+});
 </script>
 </body>
 </html>
