@@ -68,28 +68,6 @@
             #wishes { font-size: 4.6vw; padding:0 3vw;}
             #wishes img { max-width: 90vw; width: 90vw;}
         }
-        #music-note {
-    position: fixed;
-    bottom: 4vh;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    padding: 0.6em 1.2em;
-    border-radius: 2em;
-    font-size: 1em;
-    font-family: 'Segoe UI', sans-serif;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.3);
-    z-index: 999;
-    opacity: 0;
-    transition: opacity 0.4s;
-    pointer-events: none;
-}
-#music-note.show {
-    opacity: 1;
-    pointer-events: auto;
-}
-
     </style>
 </head>
 <body>
@@ -612,13 +590,11 @@ window.addEventListener('resize', ()=>{
 // Nhạc nền auto play
 const bgMusic = document.getElementById('bg-music');
 function playMusic() {
-    const note = document.getElementById('music-note');
     bgMusic.volume = 0.45;
     bgMusic.play().catch(() => {
-        note.classList.add('show');
+        // Một số trình duyệt yêu cầu tương tác, sẽ play khi có click
         document.body.addEventListener('pointerdown', function once() {
             bgMusic.play();
-            note.classList.remove('show');
             document.body.removeEventListener('pointerdown', once);
         });
     });
@@ -636,6 +612,5 @@ function launch() {
 launch();
 
 </script>
-<div id="music-note">🎵 Chạm để phát nhạc</div>
 </body>
 </html>
