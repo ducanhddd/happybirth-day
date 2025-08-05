@@ -79,7 +79,44 @@
     <button id="goto-btn" style="display:none">Xem quà đặc biệt 🎁</button>
 </div>
 <!-- Thay đổi src ở dưới để dùng bài nhạc khác -->
-<audio id="bg-music" src="https://cdn.pixabay.com/audio/2022/12/19/audio_12c7b8e6e2.mp3" loop></audio>
+<audio id="bg-music" src="images/nhac1   }
+        #goto-btn {
+            margin-top: 2.5vw;
+            padding: 0.7em 2.2em;
+            font-size: 1.2em;
+            background: linear-gradient(90deg,#e46bc2,#b85cff,#735dff);
+            color: #fff;
+            border: none;
+            border-radius: 2em;
+            cursor: pointer;
+            box-shadow: 0 2px 22px #735dff22;
+            font-family: inherit;
+            transition: opacity 0.2s, background 0.3s;
+            opacity: 0.94;
+            pointer-events: auto;
+        }
+        #goto-btn:hover {
+            opacity:1;
+            background: linear-gradient(90deg,#b85cff,#e46bc2,#ffb86c);
+            color: #fffde4;
+            box-shadow: 0 2px 32px #e46bc288;
+        }
+        @media (max-width:600px) {
+            #wishes { font-size: 4.6vw; padding:0 3vw;}
+            #wishes img { max-width: 90vw; width: 90vw;}
+        }
+    </style>
+</head>
+<body>
+<canvas id="stars3d"></canvas>
+<canvas id="effect-canvas"></canvas>
+<div id="wishes">
+    <div id="wishes-content"></div>
+    <img id="wish-img" src="" alt="Lời chúc" style="display:none">
+    <button id="goto-btn" style="display:none">Xem quà đặc biệt 🎁</button>
+</div>
+<!-- Thay đổi src ở dưới để dùng bài nhạc khác -->
+<audio id="bg-music" src="images/nhac1.mp3" loop></audio>
 <script>
 // --- VŨ TRỤ 3D ---
 const starsCanvas = document.getElementById('stars3d');
@@ -412,7 +449,7 @@ const WISHES_TEXT = `Chúc bạn tuổi mới thật nhiều sức khỏe, hạn
 Luôn luôn rạng rỡ, bình an và gặp thật nhiều may mắn trên mọi hành trình nhé! 🎂🎉`;
 const WISHES_IMG = "images/anh1.jpg"; // Thay đường dẫn ảnh bạn muốn
 const WISHES_BTN_TEXT = "Xem quà đặc biệt 🎁";
-const WISHES_BTN_LINK = "https://www.google.com"; // Thay link bạn muốn
+const WISHES_BTN_LINK = "https://ducanhddd.github.io/galaxy/"; // Thay link bạn muốn
 
 function animateIn(dots, isText, callback) {
     animating = true;
