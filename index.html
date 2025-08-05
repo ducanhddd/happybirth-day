@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Vũ trụ 3D Đếm ngược Dot Matrix + Happy Birthday</title>
+    <style>
+        html, body {
+            width: 100vw; height: 100vh; margin: 0; padding: 0; overflow: hidden;
+            background: radial-gradient(ellipse at 25% 40%, #735dff 0%, #b85cff 30%, #e46bc2 65%, #ffb86c 100%);
+        }
+        #stars3d, #effect-canvas, #wishes {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none;
+        }
+        #stars3d { z-index: 1; }
+        #effect-canvas { z-index: 2; }
+        #wishes {
+            z-index: 3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.6vw;
+            color: #fff;
+            font-family: 'Segoe UI', 'Arial', sans-serif;
+            text-shadow: 0 2px 12px #e46bc2, 0 4px 32px #b85cff;
+            opacity: 0;
+            transition: opacity 1.6s;
+            text-align: center;
+            padding: 0 10vw;
+            line-height: 1.4;
+            letter-spacing: 0.02em;
+            pointer-events: auto;
+        }
+        #wishes-content {
+            margin-bottom: 2.2vw;
+        }
+        #wishes img {
+            max-width: 220px;
+            width: 35vw;
+            max-height: 30vh;
+            margin: 1vw auto 0 auto;
+            border-radius: 1vw;
+            box-shadow: 0 6px 32px #b85cff55;
+            display: block;
+        }
+        #goto-btn {
+            margin-top: 2.5vw;
+            padding: 0.7em 2.2em;
+            font-size: 1.2em;
+            background: linear-gradient(90deg,#e46bc2,#b85cff,#735dff);
+            color: #fff;
+            border: none;
+            border-radius: 2em;
+            cursor: pointer;
+            box-shadow: 0 2px 22px #735dff22;
+            font-family: inherit;
+            transition: opacity 0.2s, background 0.3s;
+            opacity: 0.94;
+            pointer-events: auto;
+        }
+        #goto-btn:hover {
+            opacity:1;
+            background: linear-gradient(90deg,#b85cff,#e46bc2,#ffb86c);
+            color: #fffde4;
+            box-shadow: 0 2px 32px #e46bc288;
+        }
+        @media (max-width:600px) {
+            #wishes { font-size: 4.6vw; padding:0 3vw;}
+            #wishes img { max-width: 90vw; width: 90vw;}
+        }
+    </style>
+</head>
+<body>
+<canvas id="stars3d"></canvas>
+<canvas id="effect-canvas"></canvas>
+<div id="wishes">
+    <div id="wishes-content"></div>
+    <img id="wish-img" src="" alt="Lời chúc" style="display:none">
+    <button id="goto-btn" style="display:none">Xem quà đặc biệt 🎁</button>
+</div>
+<!-- Thay đổi src ở dưới để dùng bài nhạc khác -->
+<audio id="bg-music" src="https://cdn.pixabay.com/audio/2022/12/19/audio_12c7b8e6e2.mp3" loop></audio>
+<script>
+// --- VŨ TRỤ 3D ---
+const starsCanvas = document.getElementById('stars3d');
+const sctx = starsCanvas.getContext('2d');
+let w = window.innerWidth, h = window.innerHeight;
+starsCanvas.width = w;
+starsCanvas.height = h;
+
+const STAR_NUM = 350;
+const STAR_MIN_Z = 0.17;
+const STAR_MAX_Z = 1.15;
+let stars = [];
+function lerp(a, b, t) { return a + (b - a) * t; }
+function randomStar() {
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = Math.random() * Math.min(w, h) * 0.49 + 40;
+    const z = Math.random() * (STAR_MAX_Z - STAR_MIN_Z) + STAR_MIN_Z;
+    return {
+        baseAngle: angle,
+        baseDistance: distance,
+        z: z,
+        speed: 0.0014 + Math.random()*0.0021,
+        size: Math.random() < 0.1 ? 1.4 + Math.random() * 1.1 : (Math.random() < 0.4 ? 0.7 : 0.4),
+        twinkle: 0.5 + Math.random()*0.7
+    };
+}
+function resetStar(star, behind = false) {
+    star.baseAngle = Math.random() * 2 * Math.PI;
+    star.baseDistance = Math.random() * Math.min(w, h) * 0.49 + 40;
+    star.z = behind ? STAR_MAX_Z : STAR_MIN_Z;
+    star.size = Math.random() < 0.1 ? 1.4 + Math.random() * 1.1 : (Math.random() < 0.4 ? 0.7 : 0.4);
+    star.twinkle = 0.5 + Math.random()*0.7;
+}
+function initStars() {
+    stars = [];
+    for(let i=0; i<STAR_NUM; i++) stars.push(randomStar());
+}
+initStars();
+
+function drawStars() {
+    sctx.clearRect(0,0,w,h);
+    for(let star of stars) {
+        let z = star.z, scale = 1 / z;
+        let px = w/2 + Math.cos(star.baseAngle) * star.baseDistance * scale;
+        let py = h/2 + Math.sin(star.baseAngle) * star.baseDistance * scale * 0.7;
+        let ps = star.size * scale * 0.85;
+        let twinkleAlpha = lerp(0.5, 1, Math.abs(Math.sin(Date.now()/750 + px + py) * star.twinkle));
+        let baseAlpha = Math.max(0.35, 1.18 - z*1.13);
+        let alpha = baseAlpha * twinkleAlpha;
+        sctx.save();
+        sctx.globalAlpha = alpha;
+        sctx.shadowColor = "#fff";
+        sctx.shadowBlur = ps > 1 ? 3 : 1;
+        sctx.fillStyle = "#fff";
+        sctx.beginPath();
+        sctx.arc(px, py, ps, 0, 2*Math.PI, false);
+        sctx.fill();
+        sctx.restore();
+    }
+}
+function animateStars() {
+    for(let star of stars) {
+        star.z -= star.speed;
+        if(star.z < STAR_MIN_Z) resetStar(star, true);
+    }
+    drawStars();
+    requestAnimationFrame(animateStars);
+}
+animateStars();
+
+// -------- DOT MATRIX (SỐ & CHỮ) ---------
+const effectCanvas = document.getElementById('effect-canvas');
+const cctx = effectCanvas.getContext('2d');
+effectCanvas.width = w; effectCanvas.height = h;
+
+// Dot matrix cho số (đếm ngược)
+const DOT_ROWS_NUM = 36, DOT_COLS_NUM = 30;
+function getDotSizeNum() { return Math.min(w,h) * 0.018; }
+function getDotGapNum() { return getDotSizeNum() * 0.40; }
+const DOT_COLOR = "#fff";
+
+function getMatrixDots(number) {
+    let fontCanvas = document.createElement('canvas');
+    let fctx = fontCanvas.getContext('2d');
+    fontCanvas.width = DOT_COLS_NUM*12;
+    fontCanvas.height = DOT_ROWS_NUM*12;
+    fctx.clearRect(0,0,fontCanvas.width,fontCanvas.height);
+    fctx.font = `bold ${fontCanvas.height*0.95}px Arial`;
+    fctx.textAlign = "center";
+    fctx.textBaseline = "middle";
+    fctx.fillStyle = "#fff";
+    fctx.fillText(number, fontCanvas.width/2, fontCanvas.height/2);
+
+    let imgData = fctx.getImageData(0,0,fontCanvas.width,fontCanvas.height).data;
+    let dots = [];
+    for(let r=0; r<DOT_ROWS_NUM; r++) for(let c=0; c<DOT_COLS_NUM; c++) {
+        let cx = Math.round((c+0.5)*fontCanvas.width/DOT_COLS_NUM);
+        let cy = Math.round((r+0.5)*fontCanvas.height/DOT_ROWS_NUM);
+        let idx = (cy*fontCanvas.width + cx)*4;
+        let brightness = imgData[idx]+imgData[idx+1]+imgData[idx+2];
+        if (brightness > 380) {
+            dots.push({x: c, y: r});
+        }
+    }
+    return dots;
+}
+
+function drawDots(dotArr) {
+    for (let dot of dotArr) {
+        cctx.save();
+        cctx.globalAlpha = dot.alpha;
+        cctx.beginPath();
+        cctx.arc(dot.x, dot.y, dot.r, 0, 2*Math.PI, false);
+        cctx.fillStyle = DOT_COLOR;
+        cctx.shadowColor = "#fff";
+        cctx.shadowBlur = 18 * dot.scale;
+        cctx.fill();
+        
+        // Add extra glow for better visibility
+        cctx.beginPath();
+        cctx.arc(dot.x, dot.y, dot.r * 0.6, 0, 2*Math.PI, false);
+        cctx.fillStyle = "#ffffff";
+        cctx.globalAlpha = dot.alpha * 0.8;
+        cctx.fill();
+        
+        cctx.restore();
+    }
+}
+
+// --- Dot matrix chữ (Happy Birthday To You) ---
+const LETTER_MATRIX = {
+  H: [
+    "xxxx      xxxx",
+    "xxxx      xxxx",
+    "xxxx      xxxx",
+    "xxxx      xxxx",
+    "xxxxxxxxxxxxxx",
+    "xxxxxxxxxxxxxx",
+    "xxxx      xxxx",
+    "xxxx      xxxx",
+    "xxxx      xxxx",
+    "xxxx      xxxx"
+  ],
+  A: [
+    "       xx       ",
+    "      xxxx      ",
+    "     xxxxxx     ",
+    "    xxxxxxxx    ",
+    "   xxxx  xxxx   ",
+    "  xxxxxxxxxxxx  ",
+    " xxxxxxxxxxxxxx ",
+    "xxxx        xxxx",
+    "xxxx        xxxx"
+  ],
+  P: [
+    "xxxxxxxxxxx  ",
+    "xxxxxxxxxxxx ",
+    "xxxx     xxxx",
+    "xxxx     xxxx",
+    "xxxxxxxxxxxx ",
+    "xxxxxxxxxxx  ",
+    "xxxx         ",
+    "xxxx         ",
+    "xxxx         ",
+    "xxxx         "
+  ],
+  Y: [
+    "xxx        xxx ",
+    " xxx      xxx  ",
+    "  xxx    xxx   ",
+    "   xxx  xxx    ",
+    "     xxxx      ",
+    "     xxxx      ",
+    "     xxxx      ",
+    "     xxxx      ",
+    "     xxxx      ",
+    "     xxxx      "
+  ],
+  B: [
+    "xxxxxxxxx  ",
+    "xxxxxxxxxx ",
+    "xxx     xxx",
+    "xxx     xxx",
+    "xxxxxxxxxx ",
+    "xxx     xxx",
+    "xxx     xxx",
+    "xxx     xxx",
+    "xxxxxxxxxx ",
+    "xxxxxxxxx  "
+  ],
+  I: [
+    "xxxx",
+    "xxxx",
+    "xxxx",
+    "xxxx",
+    "xxxx",
+    "xxxx",
+    "xxxx",
+    "xxxx",
+    "xxxx",
+    "xxxx"
+  ],
+  R: [
+    "xxxxxxxx  ",
+    "xxxxxxxxx ",
+    "xx     xx ",
+    "xx     xx ",
+    "xxxxxxxx  ",
+    "xxxxxxx   ",
+    "xx    xx  ",
+    "xx     xx ",
+    "xx     xx ",
+    "xx     xx "
+  ],
+  T: [
+    "xxxxxxxxxx",
+    "xxxxxxxxxx",
+    "    xx    ",
+    "    xx    ",
+    "    xx    ",
+    "    xx    ",
+    "    xx    ",
+    "    xx    ",
+    "    xx    ",
+    "    xx    "
+  ],
+  D: [
+    "xxxxxxxxx  ",
+    "xxxxxxxxxx ",
+    "xxx     xxx",
+    "xxx     xxx",
+    "xxx     xxx",
+    "xxx     xxx",
+    "xxx     xxx",
+    "xxx     xxx",
+    "xxxxxxxxxx ",
+    "xxxxxxxxx  "
+  ],
+  O: [
+    "  xxxxxx  ",
+    " xxx  xxx ",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    " xxx  xxx ",
+    "  xxxxxx  "
+  ],
+  U: [
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    "xx      xx",
+    " xxxxxxxx ",
+    "  xxxxxx  "
+  ],
+  ' ': [
+    "      ",
+    "      ",
+    "      ",
+    "      ",
+    "      ",
+    "      ",
+    "      ",
+    "      ",
+    "      ",
+    "      "
+  ]
+};
+
+function getPatternForText(text) {
+  let result = [];
+  let offsetCol = 0;
+  text = text.toUpperCase();
+  for (let i = 0; i < text.length; ++i) {
+    let ch = text[i];
+    let matrix = LETTER_MATRIX[ch] || LETTER_MATRIX[' '];
+    for (let row = 0; row < matrix.length; ++row) {
+      for (let col = 0; col < matrix[row].length; ++col) {
+        if (matrix[row][col] === "x") {
+          result.push({col: offsetCol + col, row});
+        }
+      }
+    }
+    offsetCol += matrix[0].length + 2; // space between letters
+  }
+  return result;
+}
+
+function getDotSizeText() { return Math.min(w,h) * 0.013; }
+function getDotGapText() { return getDotSizeText() * 0.36; }
+
+function getPatternCoords(patternInfo) {
+  const DOT_SIZE = getDotSizeText();
+  const DOT_GAP = getDotGapText();
+  let minCol = Math.min(...patternInfo.map(d => d.col));
+  let maxCol = Math.max(...patternInfo.map(d => d.col));
+  let minRow = Math.min(...patternInfo.map(d => d.row));
+  let maxRow = Math.max(...patternInfo.map(d => d.row));
+  let cols = maxCol - minCol + 1;
+  let rows = maxRow - minRow + 1;
+  let fullW = cols * (DOT_SIZE + DOT_GAP);
+  let fullH = rows * (DOT_SIZE + DOT_GAP);
+
+  let offsetX = w/2 - fullW/2 - minCol * (DOT_SIZE + DOT_GAP);
+  let offsetY = h/2 - fullH/2 - minRow * (DOT_SIZE + DOT_GAP);
+
+  return patternInfo.map(d => ({
+    x: offsetX + d.col * (DOT_SIZE + DOT_GAP),
+    y: offsetY + d.row * (DOT_SIZE + DOT_GAP),
+    r: DOT_SIZE/2
+  }));
+}
+
+// --- Animation logic ---
+let showDots = [];
+let animating = false;
+let currentNum = 3;
+let currentLine = 0;
+const LINES = ["HAPPY", "BIRTHDAY", "TO YOU"];
+
+// Lời chúc cuối, chèn ảnh và link tùy ý
+const WISHES_TEXT = `Chúc bạn tuổi mới thật nhiều sức khỏe, hạnh phúc và thành công!<br>
+Luôn luôn rạng rỡ, bình an và gặp thật nhiều may mắn trên mọi hành trình nhé! 🎂🎉`;
+const WISHES_IMG = "https://cdn.pixabay.com/photo/2015/07/28/22/05/birthday-865324_1280.jpg"; // Thay đường dẫn ảnh bạn muốn
+const WISHES_BTN_TEXT = "Xem quà đặc biệt 🎁";
+const WISHES_BTN_LINK = "https://www.google.com"; // Thay link bạn muốn
+
+function animateIn(dots, isText, callback) {
+    animating = true;
+    let centerX = w/2, centerY = h/2;
+    let DOT_SIZE = isText ? getDotSizeText() : getDotSizeNum();
+    let startDots = [];
+    for(let coord of dots) {
+        let angle = Math.random() * 2 * Math.PI;
+        let radius = Math.random() * Math.max(w, h)/2 + 120;
+        startDots.push({
+            x: centerX + Math.cos(angle)*radius,
+            y: centerY + Math.sin(angle)*radius,
+            tx: coord.x,
+            ty: coord.y,
+            r: DOT_SIZE/2,
+            alpha: 0,
+            scale: 0.5
+        });
+    }
+    let frame = 0, maxFrame = 38;
+    function frameIn() {
+        frame++;
+        for(let dot of startDots) {
+            dot.x = lerp(dot.x, dot.tx, 0.22);
+            dot.y = lerp(dot.y, dot.ty, 0.22);
+            dot.alpha = lerp(dot.alpha, 1, 0.12);
+            dot.scale = lerp(dot.scale, 1, 0.16);
+            dot.r = DOT_SIZE/2 * dot.scale;
+        }
+        cctx.clearRect(0,0,effectCanvas.width,effectCanvas.height);
+        drawDots(startDots);
+        if (frame < maxFrame) requestAnimationFrame(frameIn);
+        else {
+            showDots = startDots.map(d => ({...d}));
+            animating = false;
+            callback && callback();
+        }
+    }
+    frameIn();
+}
+
+function animateOut(isText, callback) {
+    animating = true;
+    let DOT_SIZE = isText ? getDotSizeText() : getDotSizeNum();
+    let frame = 0, maxFrame = 29;
+    function frameOut() {
+        frame++;
+        for (let dot of showDots) {
+            let angle = Math.random() * 2 * Math.PI;
+            let speed = 6 + Math.random()*7;
+            dot.x += Math.cos(angle) * speed;
+            dot.y += Math.sin(angle) * speed;
+            dot.alpha *= 0.92;
+            dot.scale *= 0.96;
+            dot.r = DOT_SIZE/2 * dot.scale;
+        }
+        cctx.clearRect(0,0,effectCanvas.width,effectCanvas.height);
+        drawDots(showDots);
+        if (frame < maxFrame) requestAnimationFrame(frameOut);
+        else {
+            animating = false;
+            callback && callback();
+        }
+    }
+    frameOut();
+}
+
+// --- Đếm ngược rồi hiện chữ ---
+function startCountdown(num) {
+    if (num < 1) {
+        setTimeout(()=>{
+            cctx.clearRect(0,0,effectCanvas.width,effectCanvas.height);
+            // Bắt đầu hiệu ứng dòng chữ
+            setTimeout(()=>showLine(0), 300);
+        }, 350);
+        return;
+    }
+    currentNum = num;
+    let matrixDots = getMatrixDots(num.toString());
+    let dotSize = getDotSizeNum(), dotGap = getDotGapNum();
+    let fullW = DOT_COLS_NUM * (dotSize+dotGap);
+    let fullH = DOT_ROWS_NUM * (dotSize+dotGap);
+    let x0 = w/2 - fullW/2, y0 = h/2 - fullH/2;
+    let dots = matrixDots.map(d => ({
+        x: x0 + d.x*(dotSize+dotGap),
+        y: y0 + d.y*(dotSize+dotGap),
+        r: dotSize/2
+    }));
+    animateIn(dots, false, ()=>{
+        setTimeout(()=>{
+            animateOut(false, ()=>{
+                startCountdown(num-1);
+            });
+        }, 900);
+    });
+}
+
+function showLine(idx) {
+    currentLine = idx;
+    let patternInfo = getPatternForText(LINES[idx]);
+    let patternCoords = getPatternCoords(patternInfo);
+    animateIn(patternCoords, true, ()=>{
+        setTimeout(()=>{
+            animateOut(true, ()=>{
+                if (currentLine + 1 < LINES.length) {
+                    showLine(currentLine + 1);
+                } else {
+                    // Đã xong TO YOU, hiện lời chúc
+                    showWishes();
+                }
+            });
+        }, 1200);
+    });
+}
+
+// --- Lời chúc cuối ---
+const wishesDiv = document.getElementById('wishes');
+const wishesContentDiv = document.getElementById('wishes-content');
+const wishImg = document.getElementById('wish-img');
+const gotoBtn = document.getElementById('goto-btn');
+function showWishes() {
+    wishesContentDiv.innerHTML = WISHES_TEXT;
+    // Ảnh
+    if(WISHES_IMG && WISHES_IMG.length > 5) {
+        wishImg.src = WISHES_IMG;
+        wishImg.style.display = "block";
+    } else {
+        wishImg.style.display = "none";
+    }
+    // Nút
+    if(WISHES_BTN_LINK && WISHES_BTN_TEXT) {
+        gotoBtn.textContent = WISHES_BTN_TEXT;
+        gotoBtn.style.display = "inline-block";
+        gotoBtn.onclick = ()=>window.open(WISHES_BTN_LINK, "_blank");
+    } else {
+        gotoBtn.style.display = "none";
+    }
+    wishesDiv.style.opacity = "0";
+    wishesDiv.style.display = "flex";
+    setTimeout(()=>{
+        wishesDiv.style.opacity = "1";
+    }, 80);
+}
+
+// Responsive
+window.addEventListener('resize', ()=>{
+    w = window.innerWidth; h = window.innerHeight;
+    starsCanvas.width = w; starsCanvas.height = h;
+    effectCanvas.width = w; effectCanvas.height = h;
+    initStars();
+    if (animating) return;
+    if(currentNum > 0) {
+        let matrixDots = getMatrixDots(currentNum.toString());
+        let dotSize = getDotSizeNum(), dotGap = getDotGapNum();
+        let fullW = DOT_COLS_NUM * (dotSize+dotGap);
+        let fullH = DOT_ROWS_NUM * (dotSize+dotGap);
+        let x0 = w/2 - fullW/2, y0 = h/2 - fullH/2;
+        let dots = matrixDots.map(d => ({
+            x: x0 + d.x*(dotSize+dotGap),
+            y: y0 + d.y*(dotSize+dotGap),
+            r: dotSize/2, alpha: 1, scale: 1
+        }));
+        showDots = dots;
+        cctx.clearRect(0,0,effectCanvas.width,effectCanvas.height);
+        drawDots(showDots);
+    } else if (currentLine < LINES.length) {
+        let patternInfo = getPatternForText(LINES[currentLine]);
+        let patternCoords = getPatternCoords(patternInfo);
+        showDots = patternCoords.map(d => ({...d, alpha: 1, scale: 1}));
+        cctx.clearRect(0,0,effectCanvas.width,effectCanvas.height);
+        drawDots(showDots);
+    }
+});
+
+// Nhạc nền auto play
+const bgMusic = document.getElementById('bg-music');
+function playMusic() {
+    bgMusic.volume = 0.45;
+    bgMusic.play().catch(() => {
+        // Một số trình duyệt yêu cầu tương tác, sẽ play khi có click
+        document.body.addEventListener('pointerdown', function once() {
+            bgMusic.play();
+            document.body.removeEventListener('pointerdown', once);
+        });
+    });
+}
+
+function launch() {
+    effectCanvas.width = starsCanvas.width = w;
+    effectCanvas.height = starsCanvas.height = h;
+    wishesDiv.style.display = "none";
+    wishesDiv.style.opacity = 0;
+    startCountdown(3);
+    playMusic();
+}
+
+launch();
+
+</script>
+</body>
+</html>
