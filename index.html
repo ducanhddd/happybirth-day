@@ -165,116 +165,7 @@ function drawStars() {
     sctx.clearRect(0,0,w,h);
     for(let star of stars) {
         let z = star.z, scale = 1 / z;
-        let px = w/2 + Math.cos(star.baseAngle) * star.baseDistance * scale;
-        let py = h/2 + Math.sin(star.baseAngle) * star.baseDistance * scale * 0.7;
-        let ps = star.size * scale * 0.85;
-        let twinkleAlpha = lerp(0.5, 1, Math.abs(Math.sin(Date.now()/750 + px + py) * star.twinkle));
-        let baseAlpha = Math.max(0.35, 1.18 - z*1.13);
-        let alpha = baseAlpha * twinkleAlpha;
-        sctx.save();
-        sctx.globalAlpha = alpha;
-        sctx.shadowColor = "#fff";
-        sctx.shadowBlur = ps > 1 ? 3 : 1;
-        sctx.fillStyle = "#fff";
-        sctx.beginPath();
-        sctx.arc(px, py, ps, 0, 2*Math.PI, false);
-        sctx.fill();
-        sctx.restore();
-    }
-}
-function animateStars() {
-    for(let star of stars) {
-        star.z -= star.speed;
-        if(star.z < STAR_MIN_Z) resetStar(star, true);
-    }
-    drawStars();
-    requestAnimationFrame(animateStars);
-}
-animateStars();
-
-// -------- DOT MATRIX (SỐ & CHỮ) ---------
-const effectCanvas = document.getElementById('effect-canvas');
-const cctx = effectCanvas.getContext('2d');
-effectCanvas.width = w; effectCanvas.height = h;
-
-// Dot matrix cho số (đếm ngược)
-const DOT_ROWS_NUM = 36, DOT_COLS_NUM = 30;
-function getDotSizeNum() { return Math.min(w,h) * 0.018; }
-function getDotGapNum() { return getDotSizeNum() * 0.40; }
-const DOT_COLOR = "#fff";
-
-function getMatrixDots(number) {
-    let fontCanvas = document.createElement('canvas');
-    let fctx = fontCanvas.getContext('2d');
-    fontCanvas.width = DOT_COLS_NUM*12;
-    fontCanvas.height = DOT_ROWS_NUM*12;
-    fctx.clearRect(0,0,fontCanvas.width,fontCanvas.height);
-    fctx.font = `bold ${fontCanvas.height*0.95}px Arial`;
-    fctx.textAlign = "center";
-    fctx.textBaseline = "middle";
-    fctx.fillStyle = "#fff";
-    fctx.fillText(number, fontCanvas.width/2, fontCanvas.height/2);
-
-    let imgData = fctx.getImageData(0,0,fontCanvas.width,fontCanvas.height).data;
-    let dots = [];
-    for(let r=0; r<DOT_ROWS_NUM; r++) for(let c=0; c<DOT_COLS_NUM; c++) {
-        let cx = Math.round((c+0.5)*fontCanvas.width/DOT_COLS_NUM);
-        let cy = Math.round((r+0.5)*fontCanvas.height/DOT_ROWS_NUM);
-        let idx = (cy*fontCanvas.width + cx)*4;
-        let brightness = imgData[idx]+imgData[idx+1]+imgData[idx+2];
-        if (brightness > 380) {
-            dots.push({x: c, y: r});
-        }
-    }
-    return dots;
-}
-
-function drawDots(dotArr) {
-    for (let dot of dotArr) {
-        cctx.save();
-        cctx.globalAlpha = dot.alpha;
-        cctx.beginPath();
-        cctx.arc(dot.x, dot.y, dot.r, 0, 2*Math.PI, false);
-        cctx.fillStyle = DOT_COLOR;
-        cctx.shadowColor = "#fff";
-        cctx.shadowBlur = 18 * dot.scale;
-        cctx.fill();
-        
-        // Add extra glow for better visibility
-        cctx.beginPath();
-        cctx.arc(dot.x, dot.y, dot.r * 0.6, 0, 2*Math.PI, false);
-        cctx.fillStyle = "#ffffff";
-        cctx.globalAlpha = dot.alpha * 0.8;
-        cctx.fill();
-        
-        cctx.restore();
-    }
-}
-
-// --- Dot matrix chữ (Happy Birthday To You) ---
-const LETTER_MATRIX = {
-    H: [
-        "xxxx      xxxx",
-        "xxxx      xxxx",
-        "xxxx      xxxx",
-        "xxxx      xxxx",
-        "xxxxxxxxxxxxxx",
-        "xxxxxxxxxxxxxx",
-        "xxxx      xxxx",
-        "xxxx      xxxx",
-        "xxxx      xxxx",
-        "xxxx      xxxx"
-    ],
-    A: [
-        "        xx     ",
-        "      xxxx     ",
-        "     xxxxxx    ",
-        "    xxxxxxxx   ",
-        "   xxxx  xxxx  ",
-        "  xxxxxxxxxxxx ",
-        " xxxxxxxxxxxxxx",
-        "xxxx      xxxx",
-        "xxxx      xxxx"
+        let px = w/2 + Matxxxx      xxxx"
     ],
     P: [
         "xxxxxxxxxxx ",
@@ -339,36 +230,36 @@ const LETTER_MATRIX = {
     T: [
         "xxxxxxxxxx",
         "xxxxxxxxxx",
-        "  xx      ",
-        "  xx      ",
-        "  xx      ",
-        "  xx      ",
-        "  xx      ",
-        "  xx      ",
-        "  xx      ",
-        "  xx      "
-    ],
+        "    xx    ",
+        "    xx    ",
+        "    xx    ",
+        "    xx    ",
+        "    xx    ",
+        "    xx    ",
+        "    xx    ",
+        "    xx    "
+    ], 
     D: [
-        "xxxxxxxxx ",
         "xxxxxxxxxx ",
+        "xxxxxxxxxxx ",
         "xxx      xxx",
         "xxx      xxx",
         "xxx      xxx",
         "xxx      xxx",
         "xxx      xxx",
         "xxx      xxx",
-        "xxxxxxxxxx ",
-        "xxxxxxxxx "
+        "xxxxxxxxxxx ",
+        "xxxxxxxxxx "
     ],
     O: [
         "  xxxxxx   ",
         " xxx  xxx  ",
-        "xx    xx ",
-        "xx    xx ",
-        "xx    xx ",
-        "xx    xx ",
-        "xx    xx ",
-        "xx    xx ",
+        "xx      xx ",
+        "xx      xx ",
+        "xx      xx ",
+        "xx      xx ",
+        "xx      xx ",
+        "xx      xx ",
         " xxx  xxx  ",
         "  xxxxxx   "
     ],
@@ -451,7 +342,7 @@ const LINES = ["HAPPY", "BIRTHDAY", "TO YOU"];
 
 // Lời chúc cuối, chèn ảnh và link tùy ý
 const WISHES_TEXT = `Chúc bạn tuổi mới thật nhiều sức khỏe, hạnh phúc và thành công!<br>
-Luôn luôn rạng rỡ, bình an và gặp thật nhiều may mắn trên mọi hành trình nhé! 🎂🎉`;
+Luôn luôn rạng rỡ, bình an và gặp thật nhiều may mắn trên mọi hành trình nhé! 🎂`;
 const WISHES_IMG = ""; // Đã bỏ ảnh
 const WISHES_BTN_TEXT = "Xem quà đặc biệt 🎁";
 const WISHES_BTN_LINK = "https://ducanhddd.github.io/galaxy/"; // Thay link bạn muốn
